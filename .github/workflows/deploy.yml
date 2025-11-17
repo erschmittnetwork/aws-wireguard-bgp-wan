@@ -1,0 +1,37 @@
+# Name in the GitHub Actions "Actions" tab
+name: Deploy static resources to S3
+
+# Execute when pushing commits to the main branch
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  id-token: write   # Permission to request an OIDC token to assume the AWS IAM role
+  contents: read    # Permission to read repository contents
+
+# Deploy in an Ubuntu Linux VM hosted by GitHub
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Allow subsequent steps to access files
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # ARN of the IAM role that trusts GitHub OIDC and has S3/CloudFront permissions
+          role-to-assume: arn:aws:iam::948544151710:role/GitHubActionsDeployRole
+          # CLI calls are regional
+          aws-region: us-east-1
+
+      # Upload repo to S3 bucket.
+      - name: Sync site to S3
+        run: aws s3 sync . s3://network-blog-assets
+
+      # Force refresh CloudFront cache for quicker update
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id E2K6CM81Z0U5LV --paths "/*"
