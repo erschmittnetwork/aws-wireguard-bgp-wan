@@ -44,7 +44,7 @@ jobs:
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
-              mmdc -i "$f" -o "dist/diagrams/${base}.svg"
+              mmdc -i "$f" -o "dist/diagrams/${base}.svg" --no-sandbox
             done
           fi
 
