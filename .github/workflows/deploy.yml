@@ -30,7 +30,10 @@ jobs:
             texlive-latex-extra \
             texlive-fonts-recommended \
             lmodern \
-            librsvg2-bin
+            librsvg2-bin \
+            fonts-dejavu \
+            fonts-liberation \
+            fonts-noto
 
       - name: Install Mermaid CLI
         run: npm install -g @mermaid-js/mermaid-cli
@@ -53,10 +56,17 @@ jobs:
           }
           EOF
 
+          cat <<EOF > mermaid-config.json
+          {
+            "theme": "default",
+            "fontFamily": "DejaVu Sans, Liberation Sans, Arial" #Force safe fonts for deterministic rendering
+          }
+          EOF
+
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
-              mmdc -p puppeteer-config.json -i "$f" -o "diagrams/${base}.svg"
+              mmdc -p puppeteer-config.json -c mermaid-config.json -i "$f" -o "diagrams/${base}.svg"
               cp "diagrams/${base}.svg" "dist/diagrams/${base}.svg"
             done
           fi
