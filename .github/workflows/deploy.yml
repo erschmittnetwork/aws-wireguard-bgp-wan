@@ -56,13 +56,6 @@ jobs:
           }
           EOF
 
-          cat > mermaid-config.json <<'EOF'
-          {
-            "theme": "default",
-            "fontFamily": "DejaVu Sans, Liberation Sans, Arial" #Force safe fonts for deterministic rendering
-          }
-          EOF
-
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
