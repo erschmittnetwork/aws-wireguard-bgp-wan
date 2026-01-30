@@ -59,7 +59,7 @@ jobs:
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
-              mmdc -p puppeteer-config.json -c mermaid-config.json -i "$f" -o "diagrams/${base}.svg"
+              mmdc -p puppeteer-config.json -i "$f" -o "diagrams/${base}.svg"
               cp "diagrams/${base}.svg" "dist/diagrams/${base}.svg"
             done
           fi
