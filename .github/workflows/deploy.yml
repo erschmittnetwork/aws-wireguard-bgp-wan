@@ -58,7 +58,7 @@ jobs:
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
-              mmdc -p puppeteer-config.json -i "$f" -o "diagrams/${base}.png" -w 1600 -H 1200
+              mmdc -p puppeteer-config.json -i "$f" -o "diagrams/${base}.png" -s 4
               cp "diagrams/${base}.png" "dist/diagrams/${base}.png"
             done
           fi
