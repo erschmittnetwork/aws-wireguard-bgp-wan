@@ -7,12 +7,12 @@ graph TD
   end
 
   subgraph AWS["AWS VPC (us-east-1)"]
-    HUB["DC1 Hub (EIP-associated)\nDC1-SP1 active OR DC1-SP2 standby"]
-    HUB2["DC1-SP2 (Standby)\nAssumes EIP on failover"]
+    HUB["DC1 Hub (EIP-associated)<br/>DC1-SP1 active OR DC1-SP2 standby"]
+    HUB2["DC1-SP2 (Standby)<br/>Assumes EIP on failover"]
   end
 
-  SITE1 -->|"WireGuard underlay\nBGP overlay"| HUB
-  SITE2 -->|"WireGuard underlay\nBGP overlay"| HUB
-  SITE3 -->|"WireGuard underlay\nBGP overlay"| HUB
+  SITE1 -->|"WireGuard underlay<br/>BGP overlay"| HUB
+  SITE2 -->|"WireGuard underlay<br/>BGP overlay"| HUB
+  SITE3 -->|"WireGuard underlay<br/>BGP overlay"| HUB
 
-  HUB -->|"AWS automation:\nEventBridge + Lambda\n(EIP reassociation)"| HUB2
+  HUB -->|"AWS automation:<br/>EventBridge + Lambda<br/>(EIP reassociation)"| HUB2
