@@ -30,7 +30,6 @@ jobs:
             texlive-latex-extra \
             texlive-fonts-recommended \
             lmodern \
-            librsvg2-bin \
             fonts-dejavu \
             fonts-liberation \
             fonts-noto
@@ -59,8 +58,8 @@ jobs:
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
-              mmdc -p puppeteer-config.json -i "$f" -o "diagrams/${base}.svg"
-              cp "diagrams/${base}.svg" "dist/diagrams/${base}.svg"
+              mmdc -p puppeteer-config.json -i "$f" -o "diagrams/${base}.png"
+              cp "diagrams/${base}.png" "dist/diagrams/${base}.png"
             done
           fi
 
