@@ -50,13 +50,13 @@ jobs:
           fi
 
           # Render Mermaid diagrams
-          cat <<EOF > puppeteer-config.json
+          cat > puppeteer-config.json <<'EOF'
           {
             "args": ["--no-sandbox", "--disable-setuid-sandbox"]
           }
           EOF
 
-          cat <<EOF > mermaid-config.json
+          cat > mermaid-config.json <<'EOF'
           {
             "theme": "default",
             "fontFamily": "DejaVu Sans, Liberation Sans, Arial" #Force safe fonts for deterministic rendering
