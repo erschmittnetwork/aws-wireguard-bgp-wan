@@ -10,11 +10,7 @@
 \hline
 Document Title & AWS WireGuard BGP WAN with Automated HA Hub Failover \\
 \hline
-Author & Your Name \\
-\hline
-Author Title & N/A \\
-\hline
-Organization & N/A \\
+Author & Eric Schmitt \\
 \hline
 Document Version & 1.2 \\
 \hline
@@ -39,11 +35,11 @@ Cloud Provider & Amazon Web Services (AWS), Region: us-east-1 \\
 \hline
 \textbf{Version} & \textbf{Date} & \textbf{Description} & \textbf{Author} \\
 \hline
-1.0 & 2025-12-01 & Initial professional documentation of lab implementation & Your Name \\
+1.0 & 2025-12-01 & Initial professional documentation of lab implementation & Eric Schmitt \\
 \hline
-1.1 & 2025-12-14 & Technical corrections, validation alignment, and terminology precision & Your Name \\
+1.1 & 2025-12-14 & Technical corrections, validation alignment, and terminology precision & Eric Schmitt \\
 \hline
-1.2 & 2026-25-01 & Raw data review and LaTeX formatting overhaul & Your Name \\
+1.2 & 2026-25-01 & Raw data review and LaTeX formatting overhaul & Eric Schmitt \\
 \hline
 \end{tabular}
 
@@ -74,10 +70,10 @@ Assumed baseline familiarity:
 \subsubsection{1.4.1 Architectural Terminology}
 \label{sec:architectural-terminology}
 
-This document uses \textbf{hub-and-spoke WAN terminology} consistently:
+This document uses hub-and-spoke WAN terminology consistently:
 
 \begin{itemize}
-  \item \textbf{Hub}: Central aggregation nodes hosted in AWS EC2, terminating WireGuard tunnels and acting as \textbf{eBGP transit hubs} for this lab scope
+  \item \textbf{Hub}: Central aggregation nodes hosted in AWS EC2, terminating WireGuard tunnels and acting as eBGP transit hubs for this lab scope
   \item \textbf{Spoke}: Remote nodes (VM-based) connecting into the hub via WireGuard and participating in BGP for reachability exchange
 \end{itemize}
 
@@ -108,7 +104,7 @@ Mapping used throughout this document:
 \subsection{1.5 Scope and Applicability}
 \label{sec:scope}
 
-This document describes a \textbf{fully functional lab implementation} designed to validate an enterprise-style WAN pattern:
+This document describes a fully functional lab implementation designed to validate an enterprise-style WAN pattern:
 
 \begin{itemize}
   \item Encrypted underlay transport using WireGuard
@@ -146,20 +142,20 @@ A high-level reference architecture diagram is included later in this document (
 \subsection{2.1 Overview}
 \label{sec:overview}
 
-This document describes the design, implementation, and validation of an \textbf{AWS-hosted hub-and-spoke WAN architecture} using \textbf{WireGuard} for encrypted transport, \textbf{BGP (FRRouting)} for dynamic routing, and \textbf{AWS-native automation} for active/standby high availability.
+This document describes the design, implementation, and validation of an AWS-hosted hub-and-spoke WAN architecture using WireGuard for encrypted transport, BGP (FRRouting) for dynamic routing, and AWS-native automation for active/standby high availability.
 
-The environment is implemented as a \textbf{lab / proof-of-concept} but is intentionally designed to align with \textbf{enterprise-grade architectural principles}, including deterministic routing behavior, encrypted transport, automated failure handling, and operational observability. While not feature-complete relative to large-scale production WANs (e.g., active/active hubs, VRFs, or centralized SD-WAN controllers), all architectural decisions reflect realistic operational constraints and failure scenarios commonly encountered in small-to-medium enterprise deployments.
+The environment is implemented as a lab / proof-of-concept but is intentionally designed to align with enterprise-grade architectural principles, including deterministic routing behavior, encrypted transport, automated failure handling, and operational observability. While not feature-complete relative to large-scale production WANs (e.g., active/active hubs, VRFs, or centralized SD-WAN controllers), all architectural decisions reflect realistic operational constraints and failure scenarios commonly encountered in small-to-medium enterprise deployments.
 
 The solution demonstrates that a minimal infrastructure footprint—two cloud-based hubs and multiple remote spokes—can deliver encrypted connectivity, dynamic routing, and automated failover without reliance on proprietary SD-WAN platforms.
 
 \subsection{2.2 Architectural Summary}
 \label{sec:architectural-summary}
 
-The WAN follows a \textbf{hub-and-spoke topology}:
+The WAN follows a hub-and-spoke topology:
 
 \begin{itemize}
-  \item Two AWS EC2 instances act as \textbf{eBGP transit hub nodes} (DC1-SP1 and DC1-SP2), configured as an active/standby pair.
-  \item Multiple remote \textbf{spoke nodes} (SITE1-LF1, SITE2-LF1, SITE3-LF1) connect to the hubs over WireGuard tunnels.
+  \item Two AWS EC2 instances act as eBGP transit hub nodes (DC1-SP1 and DC1-SP2), configured as an active/standby pair.
+  \item Multiple remote spoke nodes (SITE1-LF1, SITE2-LF1, SITE3-LF1) connect to the hubs over WireGuard tunnels.
   \item All routing intelligence is exchanged dynamically using eBGP, with each node advertising a single loopback address representing its logical presence in the WAN.
 \end{itemize}
 
@@ -168,7 +164,7 @@ Only one hub is active at any given time. An AWS Elastic IP (EIP) serves as the 
 \subsection{2.3 High Availability and Automation}
 \label{sec:ha-summary}
 
-High availability is achieved using \textbf{AWS-native event-driven automation} rather than traditional network-layer redundancy protocols.
+High availability is achieved using AWS-native event-driven automation rather than traditional network-layer redundancy protocols.
 
 Two independent but complementary mechanisms are implemented:
 
@@ -184,12 +180,12 @@ This dual mechanism ensures resilience against both hard failures (instance stop
 \subsection{2.4 Routing and Reachability Model}
 \label{sec:routing-model}
 
-Dynamic routing is handled exclusively via \textbf{eBGP} for overlay reachability:
+Dynamic routing is handled exclusively via eBGP for overlay reachability:
 
 \begin{itemize}
   \item Each spoke advertises a unique /32 loopback address.
   \item The hub advertises a shared /32 loopback address representing the logical hub service endpoint.
-  \item No static routes are used for \textbf{overlay} (inter-site or spoke-to-hub) reachability; all overlay prefixes are learned and installed via BGP.
+  \item No static routes are used for overlay (inter-site or spoke-to-hub) reachability; all overlay prefixes are learned and installed via BGP.
 \end{itemize}
 
 Underlay connectivity relies on directly connected kernel routes associated with WireGuard interfaces, while all spoke-to-spoke and spoke-to-hub communication flows are determined by BGP-learned routes. This design ensures predictable traffic paths, centralized transit through the active hub, and simplified troubleshooting.
@@ -229,7 +225,7 @@ The diagram is intended as a conceptual aid and does not replace the detailed co
 \subsection{3.1 Scope of Implementation}
 \label{sec:scope-implementation}
 
-This document covers the design, deployment, and validation of a \textbf{hub-and-spoke WAN architecture} implemented using open standards and AWS-native services. The scope of the implementation includes:
+This document covers the design, deployment, and validation of a hub-and-spoke WAN architecture implemented using open standards and AWS-native services. The scope of the implementation includes:
 
 \begin{itemize}
   \item Encrypted WAN transport using WireGuard
@@ -305,7 +301,7 @@ The document is suitable both as a learning artifact and as a reference baseline
 \subsection{4.1 Architectural Overview}
 \label{sec:arch-overview}
 
-The reference architecture implements a \textbf{hub-and-spoke WAN model} using encrypted point-to-point tunnels for transport and BGP for overlay routing. A pair of redundant hub nodes are deployed in AWS, while multiple spoke nodes represent remote sites.
+The reference architecture implements a hub-and-spoke WAN model using encrypted point-to-point tunnels for transport and BGP for overlay routing. A pair of redundant hub nodes are deployed in AWS, while multiple spoke nodes represent remote sites.
 
 Although the device hostnames retain a \texttt{DC1-SPx} / \texttt{SITEx-LF1} naming convention for continuity with prior lab work, the logical roles are as follows:
 
@@ -314,7 +310,7 @@ Although the device hostnames retain a \texttt{DC1-SPx} / \texttt{SITEx-LF1} nam
   \item \textbf{Spokes}: SITE1-LF1, SITE2-LF1, SITE3-LF1
 \end{itemize}
 
-All inter-site \textbf{overlay} communication is routed via the active hub. Spokes do not establish direct tunnels or routing adjacencies with each other.
+All inter-site overlay communication is routed via the active hub. Spokes do not establish direct tunnels or routing adjacencies with each other.
 
 \subsection{4.2 High-Level Topology}
 \label{sec:high-level-topology}
@@ -384,7 +380,7 @@ The hub nodes are configured with identical underlay and loopback IP assignments
 \subsection{4.6 Hub Redundancy Model}
 \label{sec:hub-redundancy}
 
-Hub redundancy is achieved through an \textbf{active/standby failover model} rather than protocol-level multi-homing.
+Hub redundancy is achieved through an active/standby failover model rather than protocol-level multi-homing.
 
 Key characteristics:
 
@@ -445,7 +441,7 @@ These principles reflect common enterprise WAN design constraints while remainin
 \subsection{5.2 Hub-and-Spoke Logical Roles}
 \label{sec:logical-roles}
 
-Although the hostnames retain a \texttt{SP} / \texttt{LF} naming convention, the logical roles are defined as follows:
+Although the hostnames retain a \texttt{SP} (Spine) / \texttt{LF} (Leaf) naming convention from an earlier architectural design, the logical roles are defined as follows:
 
 \begin{itemize}
   \item \textbf{Hubs}: DC1-SP1 (primary), DC1-SP2 (standby)
@@ -465,7 +461,7 @@ Throughout this document:
 \subsubsection{5.3.1 Interface Model}
 \label{sec:wg-interface-model}
 
-Each hub node hosts \textbf{three independent WireGuard interfaces}, one per spoke:
+Each hub node hosts three independent WireGuard interfaces, one per spoke:
 
 \begin{itemize}
   \item \texttt{wg0}: SITE1-LF1
@@ -473,7 +469,7 @@ Each hub node hosts \textbf{three independent WireGuard interfaces}, one per spo
   \item \texttt{wg2}: SITE3-LF1
 \end{itemize}
 
-Each spoke hosts exactly \textbf{one WireGuard interface} (\texttt{wg0}) connected to the hub.
+Each spoke hosts exactly one WireGuard interface (\texttt{wg0}) connected to the hub.
 
 This model provides:
 
@@ -500,7 +496,7 @@ SITE3-LF1 & 10.100.3.1/30 & 10.100.3.2/30 \\
 \end{tabular}
 \end{center}
 
-Both hub instances use \textbf{identical interface IP addressing}. At any given time, only the hub associated with the Elastic IP is reachable.
+Both hub instances use identical interface IP addressing. At any given time, only the hub associated with the Elastic IP is reachable.
 
 \subsubsection{5.3.3 Cryptographic Identity Model}
 \label{sec:wg-crypto-identity}
@@ -531,7 +527,7 @@ This setting maintains NAT bindings for spoke nodes and accelerates failure dete
 
 \paragraph{Hub WireGuard configuration (DC1-SP1 and DC1-SP2)}
 
-The two hub instances use \textbf{identical WireGuard configuration files}. The following configuration applies to both DC1-SP1 and DC1-SP2.
+The two hub instances use identical WireGuard configuration files. The following configuration applies to both DC1-SP1 and DC1-SP2.
 
 \begin{verbatim}
 # /etc/wireguard/wg0.conf
@@ -2123,10 +2119,10 @@ Two EC2 hub instances are deployed:
   \item \textbf{DC1-SP1} (preferred primary)
   \item \textbf{DC1-SP2} (secondary)
 \end{itemize}
-Only one hub is intended to be \emph{externally active} at a time, defined as ``currently associated with the Elastic IP (EIP).''
+Only one hub is intended to be externally active at a time, defined as ``currently associated with the Elastic IP (EIP).''
 
 \paragraph{Spoke behavior (no configuration changes during failover)}
-All spokes terminate WireGuard sessions to the hub \emph{via the EIP} rather than instance-specific public IPs. This provides:
+All spokes terminate WireGuard sessions to the hub via the EIP rather than instance-specific public IPs. This provides:
 \begin{itemize}
   \item A single stable endpoint for all spokes.
   \item Hub replacement without updating spoke configuration.
@@ -2137,7 +2133,7 @@ All spokes terminate WireGuard sessions to the hub \emph{via the EIP} rather tha
 Two mechanisms are used in tandem:
 \begin{enumerate}
   \item \textbf{EventBridge rules (primary)}: drive deterministic EIP ownership based on DC1-SP1 instance lifecycle state.
-  \item \textbf{CloudWatch alarm (contingency + telemetry)}: triggers failover if DC1-SP1 is \emph{running but unhealthy}, and provides a native audit trail of health degradation.
+  \item \textbf{CloudWatch alarm (contingency + telemetry)}: triggers failover if DC1-SP1 is running but unhealthy, and provides a native audit trail of health degradation.
 \end{enumerate}
 
 \subsubsection{6.4.2 AWS Resources and Identifiers (Lab-Specific)}
@@ -2202,7 +2198,7 @@ These two rules establish a deterministic preference model:
 \subsubsection{6.4.4 CloudWatch Alarm as Health-Based Contingency (and Telemetry)}
 
 \paragraph{Problem addressed}
-EC2 instance lifecycle state alone does not represent ``running but unhealthy.'' To cover this case, CloudWatch alarms are used to detect \emph{instance-level} health check failure while the instance remains in the \texttt{running} state.
+EC2 instance lifecycle state alone does not represent ``running but unhealthy.'' To cover this case, CloudWatch alarms are used to detect instance-level health check failure while the instance remains in the \texttt{running} state.
 
 \paragraph{Alarm configuration (record of settings)}
 \begin{itemize}
@@ -2307,7 +2303,7 @@ Security validation in this lab focuses on:
   \item Absence of unintended filtering or stateful interference that could obscure dataplane or control-plane behavior.
 \end{itemize}
 
-The following areas are explicitly \emph{out of scope} for this lab:
+The following areas are explicitly out of scope for this lab:
 \begin{itemize}
   \item Key rotation automation.
   \item Intrusion detection / prevention systems.
@@ -2440,7 +2436,7 @@ This setting is especially important given:
 \end{itemize}
 
 \paragraph{Key rotation policy}
-Key rotation is \textbf{manual and out of scope} for this lab. This is explicitly documented to avoid implying operational maturity beyond the intended proof-of-concept scope.
+Key rotation is manual and out of scope for this lab. This is explicitly documented to avoid implying operational maturity beyond the intended proof-of-concept scope.
 
 \subsubsection{6.5.6 Security Validation Summary}
 
@@ -2471,8 +2467,8 @@ This section documents the expected operational behavior of the environment, alo
 \paragraph{Steady-state assumptions}
 Under normal conditions:
 \begin{itemize}
-  \item \textbf{DC1-SP1} is in the \emph{running} state and associated with the Elastic IP (EIP).
-  \item \textbf{DC1-SP2} is in the \emph{running} state but has no EIP association.
+  \item \textbf{DC1-SP1} is in the \texttt{running} state and associated with the Elastic IP (EIP).
+  \item \textbf{DC1-SP2} is in the \texttt{running} state but has no EIP association.
   \item All spokes maintain a single WireGuard tunnel (\texttt{wg0}) to the EIP.
   \item BGP sessions between the hub and all spokes are established.
 \end{itemize}
@@ -2611,7 +2607,7 @@ Failback is triggered exclusively by EventBridge when DC1-SP1 transitions to the
   \item Overlay connectivity resumes on DC1-SP1 after a brief convergence interval.
 \end{itemize}
 
-CloudWatch alarms do \emph{not} trigger failback, by design.
+CloudWatch alarms do not trigger failback, by design.
 
 \subsection{7.5 Observability and Logging}
 \label{sec:observability-logging}
@@ -2662,7 +2658,7 @@ This section documents key architectural trade-offs, behavioral constraints, and
 \subsection{8.1 Underlay vs. Overlay Separation}
 \label{subsec:underlay-overlay-separation}
 
-A critical architectural principle validated by this lab is the strict separation between the \textbf{underlay} and \textbf{overlay} planes.
+A critical architectural principle validated by this lab is the strict separation between the underlay and overlay planes.
 
 \subsubsection{8.1.1 WireGuard as the Underlay}
 \label{subsubsec:wireguard-underlay}
@@ -2674,7 +2670,7 @@ WireGuard tunnels serve as the underlay transport layer. Their responsibilities 
 \item Static peer-based forwarding via \texttt{AllowedIPs}
 \end{itemize}
 
-WireGuard does \emph{not} perform routing decisions and does not dynamically resolve reachability. As demonstrated during the active/active hub experiment documented in Appendix~A, cryptographic constraints imposed by \texttt{AllowedIPs} override all routing protocol logic. When a destination prefix is not covered by a valid WireGuard peer association, traffic fails with errors such as:
+WireGuard does not perform routing decisions and does not dynamically resolve reachability. As demonstrated during the active/active hub experiment documented in Appendix~A, cryptographic constraints imposed by \texttt{AllowedIPs} override all routing protocol logic. When a destination prefix is not covered by a valid WireGuard peer association, traffic fails with errors such as:
 
 \begin{verbatim}
 ping: sendmsg: Required key not available
@@ -2860,7 +2856,7 @@ The original objectives of the lab were met:
   High availability was implemented without reliance on traditional L2/L3 redundancy protocols, instead leveraging AWS-native event-driven automation for hub ownership and availability (Section~\ref{sec:ha-automation-aws}).
 
   \item \textbf{Operational clarity:}  
-  Failover behavior is observable, auditable, and repeatable using standard AWS tooling and deterministic Elastic IP association (Sections~\ref{sec:ha-automation-aws} and \ref{sec:operational-considerations}).
+  Failover behavior is observable, auditable, and repeatable using standard AWS tooling and deterministic Elastic IP association (Sections~\ref{sec:ha-automation-aws} and \ref{sec:operations-runbook}).
 
   \item \textbf{Simplicity at the edge:}  
   Spokes remain single-homed with no hub-selection logic, maintaining a single WireGuard tunnel and eBGP adjacency toward the active hub while relying on AWS automation for hub identity changes.
@@ -2897,7 +2893,7 @@ If this architecture were to be evolved beyond a lab environment, the following 
 While intentionally minimal in scope, this lab demonstrates a coherent and defensible approach to building a secure, automated WAN in AWS using open-source networking tools. The resulting architecture serves both as a validation of design principles and as a foundation upon which more complex enterprise deployments could be built.
 
 \appendix
-\section{Design Constraints and Lessons Learned}
+\section{Appendix: Design Constraints and Lessons Learned}
 \label{sec:appendix-design-constraints}
 
 This appendix documents protocol-level constraints and architectural limitations encountered during the design and validation of the AWS WireGuard BGP hub-and-spoke WAN. The purpose is to preserve clarity in the primary design document while explicitly capturing evaluated alternatives, rejected approaches, and empirically observed behaviors that materially influenced the final architecture.
