@@ -1,18 +1,19 @@
-%%{init: {'flowchart': {'htmlLabels': false}}}%%
+%%{init: {'flowchart': {'htmlLabels': false, 'padding': 15}, 'themeVariables': {'fontSize': '14px'}}}%%
 graph TD
-  subgraph Sites["Spoke Sites (VMware / Ubuntu 24.04 LTS)"]
-    SITE1["SITE1-LF1 (Spoke)"]
-    SITE2["SITE2-LF1 (Spoke)"]
-    SITE3["SITE3-LF1 (Spoke)"]
+
+  subgraph Sites["Spoke&nbsp;Sites"]
+    SITE1["SITE1-LF1\n(Spoke)"]
+    SITE2["SITE2-LF1\n(Spoke)"]
+    SITE3["SITE3-LF1\n(Spoke)"]
   end
 
-  subgraph AWS["AWS VPC (us-east-1)"]
-    HUB["DC1 Hub (EIP-associated)<br/>DC1-SP1 active OR DC1-SP2 standby"]
-    HUB2["DC1-SP2 (Standby)<br/>Assumes EIP on failover"]
+  subgraph AWS["AWS&nbsp;VPC&nbsp;(us-east-1)"]
+    HUB["DC1&nbsp;Hub\n(EIP-associated)\nDC1-SP1&nbsp;active&nbsp;OR\nDC1-SP2&nbsp;standby"]
+    HUB2["DC1-SP2\n(Standby)\nAssumes&nbsp;EIP&nbsp;on&nbsp;failover"]
   end
 
-  SITE1 -->|"WireGuard underlay<br/>BGP overlay"| HUB
-  SITE2 -->|"WireGuard underlay<br/>BGP overlay"| HUB
-  SITE3 -->|"WireGuard underlay<br/>BGP overlay"| HUB
+  SITE1 -->|"WireGuard&nbsp;underlay\nBGP&nbsp;overlay"| HUB
+  SITE2 -->|"WireGuard&nbsp;underlay\nBGP&nbsp;overlay"| HUB
+  SITE3 -->|"WireGuard&nbsp;underlay\nBGP&nbsp;overlay"| HUB
 
-  HUB -->|"AWS automation:<br/>EventBridge + Lambda<br/>(EIP reassociation)"| HUB2
+  HUB -->|"AWS&nbsp;automation:\nEventBridge&nbsp;+&nbsp;Lambda\n(EIP&nbsp;reassociation)"| HUB2
