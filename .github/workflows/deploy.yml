@@ -65,14 +65,17 @@ jobs:
           # Build HTML
           pandoc docs/aws-wireguard-bgp-wan.tex \
             -s \
-            --resource-path=.:dist
-            --metadata title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
+            --resource-path=.:dist \
+            -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
+            -M date="$(date +%Y-%m-%d)" \
             -o dist/docs/aws-wireguard-bgp-wan.html
 
           # Build PDF
           pandoc docs/aws-wireguard-bgp-wan.tex \
             -s \
-            --resource-path=.:dist
+            --resource-path=.:dist \
+            -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
+            -M date="$(date +%Y-%m-%d)" \
             --pdf-engine=pdflatex \
             -o dist/docs/aws-wireguard-bgp-wan.pdf
 
