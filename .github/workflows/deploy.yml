@@ -50,18 +50,25 @@ jobs:
 
           # Render Mermaid diagrams
           - name: Render Mermaid diagrams (Docker)
+          shell: bash
           run: |
+            set -euo pipefail
             mkdir -p dist/diagrams
-            for f in diagrams/*.mmd; do
-              base="$(basename "$f" .mmd)"
-              docker run --rm \
-                -v "$PWD:/data" \
-                minlag/mermaid-cli \
-                -i "/data/$f" \
-                -o "/data/dist/diagrams/${base}.png" \
-                -t default \
-                -b transparent
-          done
+
+            if compgen -G "diagrams/*.mmd" > /dev/null; then
+              for f in diagrams/*.mmd; do
+                base="$(basename "$f" .mmd)"
+                docker run --rm \
+                  -v "$PWD:/data" \
+                  minlag/mermaid-cli \
+                  -i "/data/$f" \
+                  -o "/data/dist/diagrams/${base}.png" \
+                  -t default \
+                  -b transparent
+              done
+            else
+              echo "No Mermaid diagrams found."
+            fi
 
           # Copy assets
           if [ -d assets ]; then
