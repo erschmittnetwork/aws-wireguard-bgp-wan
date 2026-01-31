@@ -60,15 +60,19 @@ jobs:
             cp -R assets/* dist/assets/ || true
           fi
 
+          cp -R dist/diagrams docs/ || true
+
           # Build HTML
           pandoc docs/aws-wireguard-bgp-wan.tex \
             -s \
+            --resource-path=.:dist
             --metadata title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
             -o dist/docs/aws-wireguard-bgp-wan.html
 
           # Build PDF
           pandoc docs/aws-wireguard-bgp-wan.tex \
             -s \
+            --resource-path=.:dist
             --pdf-engine=pdflatex \
             -o dist/docs/aws-wireguard-bgp-wan.pdf
 
