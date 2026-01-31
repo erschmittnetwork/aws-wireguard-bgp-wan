@@ -67,7 +67,10 @@ jobs:
             -o dist/docs/aws-wireguard-bgp-wan.html
 
           # Build PDF
-          pdflatex -interaction=nonstopmode -output-directory dist/docs docs/aws-wireguard-bgp-wan.tex
+          pandoc docs/aws-wireguard-bgp-wan.tex \
+            -s \
+            --pdf-engine=pdflatex \
+            -o dist/docs/aws-wireguard-bgp-wan.pdf
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
