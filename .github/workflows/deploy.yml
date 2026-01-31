@@ -49,19 +49,19 @@ jobs:
           fi
 
           # Render Mermaid diagrams
-          cat > puppeteer-config.json <<'EOF'
-          {
-            "args": ["--no-sandbox", "--disable-setuid-sandbox"]
-          }
-          EOF
-
-          if compgen -G "diagrams/*.mmd" > /dev/null; then
+          - name: Render Mermaid diagrams (Docker)
+          run: |
+            mkdir -p dist/diagrams
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
-              mmdc -p puppeteer-config.json -i "$f" -o "diagrams/${base}.png" -s 4
-              cp "diagrams/${base}.png" "dist/diagrams/${base}.png"
-            done
-          fi
+              docker run --rm \
+                -v "$PWD:/data" \
+                minlag/mermaid-cli \
+                -i "/data/$f" \
+                -o "/data/dist/diagrams/${base}.png" \
+                -t default \
+                -b transparent
+          done
 
           # Copy assets
           if [ -d assets ]; then
