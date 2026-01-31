@@ -50,8 +50,7 @@ jobs:
                 -o "/data/dist/diagrams/${base}.png" \
                 -t default \
                 -b transparent \
-                -w 2400 \
-                -H 1400
+                -s 4
             done
           else
             echo "No Mermaid diagrams found."
