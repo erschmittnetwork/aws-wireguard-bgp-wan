@@ -40,16 +40,26 @@ jobs:
           fi
 
           # Render Mermaid diagrams
+          cat > puppeteer.json <<'EOF'
+          {
+            "args": ["--no-sandbox", "--disable-setuid-sandbox"]
+            "protocolTimeout": 120000
+          }
+          EOF
+
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
               docker run --rm \
                 -v "$PWD:/data" \
                 minlag/mermaid-cli \
+                --puppeteerConfigFile /data/puppeteer.json \
                 -i "/data/$f" \
                 -o "/data/dist/diagrams/${base}.png" \
                 -t default \
-                -b transparent
+                -b transparent \
+                -w 2400 \
+                -H 1400
             done
           else
             echo "No Mermaid diagrams found."
