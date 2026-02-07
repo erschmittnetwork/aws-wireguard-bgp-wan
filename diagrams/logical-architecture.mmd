@@ -7,7 +7,7 @@ graph TD
     SITE3["SITE3-LF1<br/>(Spoke)"]
   end
 
-  subgraph AWS["AWS VPC (us-east-1)"]
+  subgraph AWS["AWS EC2 VPC (us-east-1)"]
     direction TB
     HUB["DC1 Hub<br/>(EIP-associated)<br/>DC1-SP1 active OR<br/>DC1-SP2 standby"]
     HUB2["DC1-SP2<br/>(Standby)<br/>Assumes EIP on failover"]

@@ -50,7 +50,7 @@ jobs:
                 -o "/data/dist/diagrams/${base}.png" \
                 -t default \
                 -b transparent \
-                -s 4
+                -s 3
             done
           else
             echo "No Mermaid diagrams found."
@@ -69,6 +69,8 @@ jobs:
             --resource-path=.:dist \
             -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
             -M date="$(date +%Y-%m-%d)" \
+            --toc \
+            --toc-depth=3 \
             -o dist/docs/aws-wireguard-bgp-wan.html
 
           # Build PDF
