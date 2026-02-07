@@ -1,8 +1,5 @@
 \documentclass[11pt]{article}
 
-\usepackage{fvextra}
-\DefineVerbatimEnvironment{verbatim}{Verbatim}{breaklines,breakanywhere}
-
 \title{AWS WireGuard BGP WAN with Automated HA Hub Failover}
 \author{Eric Schmitt}
 \date{\today}
@@ -51,7 +48,7 @@ Cloud Provider & Amazon Web Services (AWS), Region: us-east-1 \\
 \hline
 1.0 & 2025-12-01 & Initial professional documentation of lab implementation & Eric Schmitt \\
 \hline
-1.1 & 2025-12-14 & Technical corrections, validation alignment, and terminology precision & Eric Schmitt \\
+1.1 & 2025-12-14 & Validation alignment and terminology precision & Eric Schmitt \\
 \hline
 1.2 & 2026-25-01 & Raw data review and LaTeX formatting overhaul & Eric Schmitt \\
 \hline
@@ -892,7 +889,8 @@ peer: uNDWDSo9o/Eg0W9OSArxkhUkzfslXLH96ewzOsMIdE4=
 
 \begin{verbatim}
 ip addr show wg0
-3: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group default qlen 1000
+3: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.1.1/30 scope global wg0
        valid_lft forever preferred_lft forever
@@ -900,7 +898,8 @@ ip addr show wg0
 
 \begin{verbatim}
 ip addr show wg1
-4: wg1: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group default qlen 1000
+4: wg1: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.2.1/30 scope global wg1
        valid_lft forever preferred_lft forever
@@ -908,7 +907,8 @@ ip addr show wg1
 
 \begin{verbatim}
 ip addr show wg2
-5: wg2: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group default qlen 1000
+5: wg2: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.3.1/30 scope global wg2
        valid_lft forever preferred_lft forever
@@ -979,7 +979,8 @@ peer: uNDWDSo9o/Eg0W9OSArxkhUkzfslXLH96ewzOsMIdE4=
 
 \begin{verbatim}
 ip addr show wg0
-9: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group default qlen 1000
+9: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.1.1/30 scope global wg0
        valid_lft forever preferred_lft forever
@@ -987,7 +988,8 @@ ip addr show wg0
 
 \begin{verbatim}
 ip addr show wg1
-10: wg1: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group default qlen 1000
+10: wg1: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.2.1/30 scope global wg1
        valid_lft forever preferred_lft forever
@@ -995,7 +997,8 @@ ip addr show wg1
 
 \begin{verbatim}
 ip addr show wg2
-11: wg2: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group default qlen 1000
+11: wg2: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.3.1/30 scope global wg2
        valid_lft forever preferred_lft forever
@@ -1044,7 +1047,8 @@ peer: YREXmIKOLEvUp8A9gesbe/tM/jd160iv2oXWvizwTSI=
 
 \begin{verbatim}
 ip addr show wg0
-4: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+4: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.1.2/30 scope global wg0
        valid_lft forever preferred_lft forever
@@ -1089,7 +1093,8 @@ peer: YREXmIKOLEvUp8A9gesbe/tM/jd160iv2oXWvizwTSI=
 
 \begin{verbatim}
 ip addr show wg0
-4: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+4: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.2.2/30 scope global wg0
        valid_lft forever preferred_lft forever
@@ -1135,7 +1140,8 @@ peer: YREXmIKOLEvUp8A9gesbe/tM/jd160iv2oXWvizwTSI=
 
 \begin{verbatim}
 ip addr show wg0
-4: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group default qlen 1000
+4: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue state UNKNOWN group
+default qlen 1000
     link/none
     inet 10.100.3.2/30 scope global wg0
        valid_lft forever preferred_lft forever
