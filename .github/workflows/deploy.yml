@@ -62,6 +62,9 @@ jobs:
           fi
 
           cp -R dist/diagrams docs/ || true
+          
+          mkdir -p diagrams
+          cp dist/diagrams/*.png diagrams/ || true
 
           # Build HTML
           pandoc docs/aws-wireguard-bgp-wan.tex \
