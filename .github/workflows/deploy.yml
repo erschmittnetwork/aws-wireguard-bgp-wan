@@ -69,22 +69,23 @@ jobs:
           # Build HTML
           pandoc docs/aws-wireguard-bgp-wan.tex \
             -s \
+            --toc \
+            --toc-depth=3 \
             --resource-path=.:dist \
             -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
             -M date="$(date +%Y-%m-%d)" \
-            --toc \
-            --toc-depth=3 \
             -o dist/docs/aws-wireguard-bgp-wan.html
 
           # Build PDF
-          pdflatex -interaction=nonstopmode -halt-on-error \
-            -output-directory=dist/docs \
-            docs/aws-wireguard-bgp-wan.tex
-
-          # Second pass to generate Table of Contents
-          pdflatex -interaction=nonstopmode -halt-on-error \
-            -output-directory=dist/docs \
-            docs/aws-wireguard-bgp-wan.tex
+          pandoc docs/aws-wireguard-bgp-wan.tex \
+            -s \
+            --toc \
+            --toc-depth=3 \
+            --resource-path=.:dist \
+            -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
+            -M date="$(date +%Y-%m-%d)" \
+            --pdf-engine=pdflatex \
+            -o dist/docs/aws-wireguard-bgp-wan.pdf
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

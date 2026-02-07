@@ -1,8 +1,5 @@
 \documentclass[11pt]{article}
 
-\usepackage{graphicx}
-\graphicspath{{../dist/diagrams/}{diagrams/}}
-
 \title{AWS WireGuard BGP WAN with Automated HA Hub Failover}
 \author{Eric Schmitt}
 \date{\today}
@@ -10,10 +7,6 @@
 \begin{document}
 \maketitle
 \thispagestyle{empty}
-\newpage
-
-\setcounter{tocdepth}{3}
-\tableofcontents
 \newpage
 
 \section{1. Document Control}
@@ -365,7 +358,7 @@ HTML and PDF outputs are consistent and deterministic.
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.75\linewidth]{diagrams/logical-architecture.png}
+\includegraphics[width=0.9\linewidth]{diagrams/logical-architecture.png}
 \caption{Logical architecture: hub-and-spoke WireGuard underlay with BGP overlay and AWS EIP failover.}
 \label{fig:logical-architecture}
 \end{figure}
