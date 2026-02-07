@@ -32,7 +32,7 @@ jobs:
           set -euo pipefail
 
           rm -rf dist
-          mkdir -p dist/docs dist/diagrams dist/assets
+          mkdir -p dist/docs/diagrams dist/assets
 
           # Copy homepage
           if [ -f index.html ]; then
@@ -47,7 +47,7 @@ jobs:
                 -v "$PWD:/data" \
                 minlag/mermaid-cli \
                 -i "/data/$f" \
-                -o "/data/dist/diagrams/${base}.png" \
+                -o "/data/dist/docs/diagrams/${base}.png" \
                 -t default \
                 -b transparent \
                 -s 3
@@ -60,11 +60,6 @@ jobs:
           if [ -d assets ]; then
             cp -R assets/* dist/assets/ || true
           fi
-
-          cp -R dist/diagrams docs/ || true
-          
-          mkdir -p diagrams
-          cp dist/diagrams/*.png diagrams/ || true
 
           # Build HTML
           pandoc docs/aws-wireguard-bgp-wan.tex \
