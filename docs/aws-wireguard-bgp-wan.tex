@@ -1,5 +1,8 @@
 \documentclass[11pt]{article}
 
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{breaklines,breakanywhere}
+
 \title{AWS WireGuard BGP WAN with Automated HA Hub Failover}
 \author{Eric Schmitt}
 \date{\today}
@@ -887,13 +890,13 @@ peer: uNDWDSo9o/Eg0W9OSArxkhUkzfslXLH96ewzOsMIdE4=
 
 \paragraph{Interface addressing}
 
-```bash
+\begin{verbatim}
 ip addr show wg0
 3: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 8921 qdisc noqueue state UNKNOWN group default qlen 1000
     link/none
     inet 10.100.1.1/30 scope global wg0
        valid_lft forever preferred_lft forever
-```
+\end{verbatim}
 
 \begin{verbatim}
 ip addr show wg1
