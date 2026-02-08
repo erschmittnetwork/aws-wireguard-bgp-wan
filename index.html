@@ -1,56 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Your Name – Network Engineer Portfolio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Eric Schmitt Network Engineering Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="assets/style.css">
 </head>
-
 <body>
   <div class="container">
-
-    <header>
-      <h1>Your Name</h1>
-      <p>Network Engineer · Cloud Networking · Automation</p>
-    </header>
-
-    <div class="card">
-      <h2>About</h2>
-      <p>
-        This site hosts technical work focused on cloud networking, routing,
-        security, and automation. The primary artifact is a production-style WAN
-        design using AWS, WireGuard, BGP, and automated high availability.
-      </p>
+    <h1>Eric Schmitt Network Engineering Portfolio</h1>
+    <div class="subtitle">
+      AWS • WireGuard • BGP • Automation • High Availability
     </div>
 
-    <div class="card">
-      <h2>Featured Project</h2>
-      <p>
-        <strong>AWS WireGuard BGP WAN with Automated HA Hub Failover</strong>
-      </p>
-      <p>
-        A hub-and-spoke WAN architecture built on WireGuard underlay transport and
-        BGP overlay routing, including AWS-native automation for hub failover and
-        failback using Elastic IP reassociation.
-      </p>
+    <p>
+      This site hosts a production-style networking lab demonstrating the design,
+      implementation, and validation of a secure, highly available WAN built on AWS.
+    </p>
 
-      <a class="btn" href="docs/aws-wireguard-bgp-wan.pdf">
-        Download PDF
-      </a>
+    <p>
+      The project implements a hub-and-spoke architecture using WireGuard as the encrypted
+      underlay and BGP as the dynamic routing overlay. High availability is achieved through
+      AWS-native automation that performs deterministic hub failover using Elastic IP
+      reassociation, EventBridge, and Lambda.
+    </p>
+
+    <p>
+      The lab emphasizes enterprise-aligned design principles including underlay/overlay
+      separation, deterministic routing behavior, automated recovery, and operational
+      observability. All architecture, validation, and runbook documentation is maintained
+      as code and published automatically using GitHub Actions, Pandoc, and CloudFront-backed
+      S3 hosting.
+    </p>
+
+    <div class="links">
+      <a href="docs/aws-wireguard-bgp-wan.html">View Lab (HTML)</a>
+      <a href="docs/aws-wireguard-bgp-wan.pdf">Download PDF</a>
+      <a href="https://github.com/yourname/yourrepo">GitHub Repository</a>
+      <a href="mailto:youremail@example.com">Contact Me</a>
     </div>
-
-    <div class="card">
-      <h2>Links</h2>
-      <p>
-        <a href="https://github.com/YOURUSERNAME">GitHub</a>
-      </p>
-    </div>
-
-    <footer>
-      © Your Name · Network Engineering Portfolio
-    </footer>
-
   </div>
 </body>
 </html>
