@@ -92,7 +92,7 @@ jobs:
       - name: Sync site to S3
         run: |
           aws s3 sync dist/ s3://network-blog-assets --delete
-          aws s3 cp dist/assets/ s3://network-blog-assets/assets/ --recursive --content-type text/css
+          aws s3 cp dist/docs/assets/ s3://network-blog-assets/assets/ --recursive --content-type text/css
 
       - name: Invalidate CloudFront cache
         run: |
