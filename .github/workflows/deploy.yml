@@ -79,7 +79,7 @@ jobs:
             --resource-path=.:dist:dist/docs \
             -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
             -M date="$(date +%Y-%m-%d)" \
-            -V header-includes="\\hypersetup{pdfstartpage=1,pdfstartview=FitH}" \
+            -V header-includes="\\usepackage{hyperref} \\hypersetup{pdfstartpage=1,pdfstartview=FitH}" \
             --pdf-engine=pdflatex \
             -o dist/docs/aws-wireguard-bgp-wan.pdf
 
