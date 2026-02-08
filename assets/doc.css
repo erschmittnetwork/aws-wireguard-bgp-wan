@@ -20,23 +20,19 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-/* Center EVERYTHING pandoc emits */
-body > header,
-body > nav,
-body > section,
-body > div,
-main {
+/* Page frame */
+main,
+#TOC,
+#title-block-header {
   max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   background: var(--paper);
   padding: 48px 64px;
   box-sizing: border-box;
 }
 
-/* Merge blocks visually */
-body > *:not(:first-child) {
-  margin-top: 0;
+#TOC,
+main {
   border-top: 1px solid var(--border);
 }
 
