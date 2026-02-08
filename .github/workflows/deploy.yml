@@ -66,6 +66,7 @@ jobs:
             -s \
             --toc \
             --toc-depth=3 \
+            --css=assets/doc.css \
             --resource-path=.:dist:dist/docs \
             -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
             -M date="$(date +%Y-%m-%d)" \
