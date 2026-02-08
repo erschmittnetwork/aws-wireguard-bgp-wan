@@ -32,7 +32,7 @@ jobs:
           set -euo pipefail
 
           rm -rf dist
-          mkdir -p dist/docs/diagrams dist/assets
+          mkdir -p dist/docs/diagrams dist/docs/assets
 
           # Copy homepage
           if [ -f index.html ]; then
@@ -58,7 +58,7 @@ jobs:
 
           # Copy assets
           if [ -d assets ]; then
-            cp -R assets/* dist/assets/ || true
+            cp -R assets/* dist/docs/assets/ || true
           fi
 
           # Build HTML
