@@ -33,6 +33,7 @@ body {
   background: #1b1c20;
   border-right: 1px solid var(--border);
   padding: 24px 20px;
+  padding-bottom: 60px;
 }
 
 #TOC h2 {
@@ -83,9 +84,7 @@ body > *:not(#TOC) {
   margin-left: 300px;
 }
 
-#title-block-header,
-section,
-div {
+body > *:not(#TOC) {
   max-width: 900px;
   margin: 0 auto;
   background: var(--paper);
@@ -98,9 +97,8 @@ div {
   border-radius: 8px 8px 0 0;
 }
 
-section:not(:first-of-type),
-div:not(:first-of-type) {
-  border-top: 1px solid var(--border);
+body > *:not(#TOC) + *:not(#TOC) {
+  margin-top: 0;
 }
 
 /* ---------------- Typography ---------------- */
