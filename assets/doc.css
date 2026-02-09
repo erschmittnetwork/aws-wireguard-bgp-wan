@@ -180,8 +180,12 @@ img {
 #site-header {
   position: fixed;
   top: 0;
-  left: 280px;               /* sidebar width */
-  right: 0;
+
+  /* Sidebar offset */
+  left: 360px;
+
+  /* Match body column */
+  width: 920px;
 
   height: 52px;
 
@@ -193,14 +197,9 @@ img {
   gap: 24px;
 
   padding: 0 32px;
-  z-index: 2000;
-}
+  box-sizing: border-box;
 
-/* Constrain header to body width */
-#site-header {
-  max-width: 920px;
-  margin-left: auto;
-  margin-right: auto;
+  z-index: 2000;
 }
 
 /* Header links */
@@ -216,10 +215,4 @@ img {
 /* Push document down for header */
 body {
   padding-top: 120px;
-}
-
-/* Active TOC */
-#TOC a.active {
-  color: var(--accent);
-  font-weight: 600;
 }
