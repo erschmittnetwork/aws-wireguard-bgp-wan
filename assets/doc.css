@@ -117,15 +117,6 @@ body > *:not(#TOC) {
   margin-left: 300px;
 }
 
-/* Content width like PDF */
-body > header,
-body > section,
-body > div {
-  max-width: 900px;
-  margin-right: auto;
-  margin-left: auto;
-}
-
 /* ---------- TOC Styling ---------- */
 
 #TOC h2 {
