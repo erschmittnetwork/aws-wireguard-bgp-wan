@@ -68,6 +68,7 @@ jobs:
             --toc-depth=3 \
             --css=assets/doc.css \
             --resource-path=.:dist:dist/docs \
+            --include-after-body=assets/header.html \
             -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
             -M date="$(date +%Y-%m-%d)" \
             -o dist/docs/aws-wireguard-bgp-wan.html
