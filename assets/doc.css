@@ -8,27 +8,6 @@
   --codebg: #15161a;
 }
 
-/* --- CLI / code blocks --- */
-pre {
-  background: var(--codebg);
-  padding: 16px 16px 16px 36px;
-  overflow-x: auto;
-  border-radius: 8px;
-}
-
-/* Target actual pandoc output */
-pre code {
-  display: block;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
-
-  /* Hanging indent */
-  padding-left: 24px;
-  text-indent: -24px;
-}
-
-
 html {
   background: var(--bg);
 }
