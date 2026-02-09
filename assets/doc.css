@@ -15,11 +15,16 @@ pre, code {
 
 pre {
   background: var(--codebg);
-  padding: 14px;
+  padding: 14px 14px 14px 28px;
   overflow-x: auto;
-  white-space: pre-wrap;       /* preserve + wrap */
-  word-break: break-word;     /* allow wrap if needed */
+
+  white-space: pre-wrap;
+  word-break: break-word;
+
   border-radius: 8px;
+
+  /* Hanging indent for wrapped lines */
+  text-indent: -14px;
 }
 
 code {
