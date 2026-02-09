@@ -180,8 +180,9 @@ img {
 #site-header {
   position: fixed;
   top: 0;
-  left: 280px;
+  left: 280px;               /* sidebar width */
   right: 0;
+
   height: 52px;
 
   background: #1b1c20;
@@ -195,6 +196,14 @@ img {
   z-index: 2000;
 }
 
+/* Constrain header to body width */
+#site-header {
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Header links */
 #site-header a {
   color: var(--text);
   text-decoration: none;
@@ -204,9 +213,9 @@ img {
   color: var(--accent);
 }
 
-/* Push content */
+/* Push document down for header */
 body {
-  padding-top: 100px;
+  padding-top: 120px;
 }
 
 /* Active TOC */
