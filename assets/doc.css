@@ -8,6 +8,24 @@
   --codebg: #15161a;
 }
 
+/* --- CLI / code blocks --- */
+pre, code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+pre {
+  background: var(--codebg);
+  padding: 14px;
+  overflow-x: auto;
+  white-space: pre-wrap;       /* preserve + wrap */
+  word-break: break-word;     /* allow wrap if needed */
+  border-radius: 8px;
+}
+
+code {
+  white-space: pre-wrap;
+}
+
 html {
   background: var(--bg);
 }
