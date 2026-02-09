@@ -45,28 +45,33 @@ body > *:not(#TOC) {
   background: #1b1c20;
   border-right: 1px solid var(--border);
 
-  padding: 24px 20px;
   box-sizing: border-box;
-
   overflow: hidden;
 }
 
+/* Sidebar title */
+#TOC h2 {
+  margin: 0;
+  padding: 24px 20px 12px 20px;
+
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+/* Scroll container */
 #TOC > ul {
   max-height: calc(100vh - 80px);
   overflow-y: auto;
-  padding-bottom: 80px;
-}
 
-#TOC h2 {
-  margin-top: 0;
-  color: #fff;
-  font-size: 1.2rem;
+  padding: 0 28px 120px 20px;
+  margin: 0;
+
+  scrollbar-gutter: stable;
 }
 
 /* Proper indentation */
 #TOC ul {
   list-style: none;
-  padding-left: 0;
 }
 
 #TOC ul ul {
