@@ -20,6 +20,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
+body {
+  outline: 5px solid red !important;
+}
+
 /* Page frame */
 main,
 #TOC,
