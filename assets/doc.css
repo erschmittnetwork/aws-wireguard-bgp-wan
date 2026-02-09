@@ -47,13 +47,6 @@ body > *:not(#TOC) {
   border-right: 1px solid var(--border);
 
   padding: 24px 20px 120px 20px;
-  box-sizing: border-box;
-}
-
-#TOC::after {
-  content: "";
-  display: block;
-  height: 80px;
 }
 
 #TOC h2 {
