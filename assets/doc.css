@@ -38,11 +38,6 @@ body {
   overflow-wrap: break-word;
 }
 
-/* TOC */
-#TOC {
-  margin-bottom: 56px;
-}
-
 /* Headings */
 h1, h2, h3, h4 {
   color: #ffffff;
@@ -93,4 +88,76 @@ img {
   max-width: 90%;
   display: block;
   margin: 36px auto;
+}
+
+/* ---------- Layout ---------- */
+
+body {
+  display: flex;
+  background: var(--bg);
+}
+
+/* Sidebar */
+#TOC {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+
+  background: #1b1c20;
+  border-right: 1px solid var(--border);
+
+  padding: 24px 20px;
+}
+
+/* Push main content right */
+body > *:not(#TOC) {
+  margin-left: 300px;
+}
+
+/* Content width like PDF */
+body > header,
+body > section,
+body > div {
+  max-width: 900px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* ---------- TOC Styling ---------- */
+
+#TOC h2 {
+  margin-top: 0;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+#TOC ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+#TOC li {
+  margin: 6px 0;
+}
+
+#TOC a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+#TOC a:hover {
+  color: var(--accent);
+}
+
+#TOC::-webkit-scrollbar {
+  width: 8px;
+}
+
+#TOC::-webkit-scrollbar-thumb {
+  background: #3a3d45;
+  border-radius: 4px;
 }
