@@ -182,7 +182,7 @@ img {
   top: 0;
 
   /* Sidebar offset */
-  left: 360px;
+  left: 280px;
 
   /* Match body column */
   width: 920px;
@@ -194,7 +194,8 @@ img {
 
   display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  gap: 32px;
 
   padding: 0 32px;
   box-sizing: border-box;
