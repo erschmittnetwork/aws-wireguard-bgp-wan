@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Your Name – Networking Portfolio</title>
+  <title>Eric Schmitt – Network Engineering Portfolio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Reuse document stylesheet -->
@@ -22,28 +22,86 @@
     .landing {
       max-width: 920px;
       margin: 0 auto;
+      background: var(--paper);
+      border-radius: 12px;
+      padding: 64px 72px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
     }
 
-    .landing h1 {
-      margin-top: 0;
+    /* Hero */
+
+    .hero {
       text-align: center;
+      margin-bottom: 56px;
     }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 2.4rem;
+    }
+
+    .hero p {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .hero::after {
+      content: "";
+      display: block;
+      width: 120px;
+      height: 1px;
+      background: var(--border);
+      margin: 32px auto 0;
+    }
+
+    /* Sections */
+
+    section {
+      margin-top: 40px;
+    }
+
+    section p + p {
+      margin-top: 18px;
+    }
+
+    /* Callout */
+
+    .callout {
+      background: #24262b;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 32px 0;
+    }
+
+    /* Links panel */
 
     .links {
-      margin-top: 48px;
+      margin-top: 56px;
       display: grid;
-      gap: 14px;
+      gap: 16px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
       text-align: center;
     }
 
     .links a {
-      display: inline-block;
-      padding: 12px 18px;
+      display: block;
+      padding: 14px 20px;
+      background: #24262b;
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 8px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
       text-decoration: none;
       color: var(--text);
-      background: #24262b;
+    }
+
+    .links a::before {
+      content: "→ ";
+      color: var(--accent);
     }
 
     .links a:hover {
@@ -51,11 +109,22 @@
       color: var(--accent);
     }
 
+    /* Footer */
+
     footer {
-      margin-top: 80px;
+      margin-top: 96px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
       text-align: center;
       font-size: 0.9rem;
       color: var(--muted);
+    }
+
+    .meta {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
     }
   </style>
 </head>
@@ -63,9 +132,10 @@
 <body>
   <main class="landing">
 
-    <header>
-      <h1>Your Name — Network Engineering Portfolio</h1>
-    </header>
+    <div class="hero">
+      <h1>Eric Schmitt — Network Engineering Portfolio</h1>
+      <p>AWS · WireGuard · BGP · Automation · CI/CD</p>
+    </div>
 
     <section>
       <p>
@@ -75,37 +145,45 @@
       </p>
 
       <p>
-        The environment is implemented as a proof-of-concept, but intentionally aligned with
-        enterprise architectural principles: deterministic routing behavior, encrypted connectivity,
-        automated failure handling, and operational observability. While the design does not attempt
-        to replicate full SD-WAN platforms, all components reflect realistic operational constraints
+        The environment is implemented as a proof-of-concept while aligning with enterprise
+        architectural principles such as deterministic routing behavior, encrypted connectivity,
+        automated failure handling, and operational observability. Although the design does not
+        replicate full SD-WAN platforms, all components reflect realistic operational constraints
         found in small-to-medium enterprise deployments.
       </p>
 
+      <div class="callout">
+        <strong>Project Focus:</strong> Encrypted WAN connectivity, dynamic routing with BGP,
+        automated hub failover, and deterministic CI/CD delivery using AWS-native services and
+        open-source networking software.
+      </div>
+
       <p>
         The solution demonstrates how a minimal cloud footprint—two hub nodes and multiple remote
-        spokes—can deliver encrypted WAN connectivity, dynamic routing, and automated hub failover
+        spokes—can deliver encrypted WAN connectivity, dynamic routing, and automated failover
         without reliance on proprietary SD-WAN controllers.
       </p>
 
       <p>
-        This site itself is delivered through a GitHub-to-AWS CI/CD pipeline. Source documentation,
+        The site itself is delivered through a GitHub-to-AWS CI/CD pipeline. Source documentation,
         diagrams, and infrastructure definitions are version-controlled in GitHub. On each update,
         automated workflows render Mermaid diagrams, build HTML and PDF artifacts using Pandoc,
-        and publish the site to AWS via S3 and CloudFront. This ensures deterministic builds,
-        reproducible documentation, and continuous delivery of the portfolio.
+        and publish the site to AWS via S3 and CloudFront for deterministic, reproducible delivery.
       </p>
     </section>
 
     <section class="links">
       <a href="/docs/aws-wireguard-bgp-wan.html">View Lab Document (HTML)</a>
       <a href="/docs/aws-wireguard-bgp-wan.pdf">Download Lab Document (PDF)</a>
-      <a href="https://github.com/">View Source on GitHub</a>
-      <a href="#">Contact: yourname [at] domain [dot] com</a>
+      <a href="https://github.com/">View GitHub Repository</a>
     </section>
 
     <footer>
-      © 2026 Eric Schmitt. All rights reserved. For demonstration purposes only.
+      © 2026 Eric Schmitt. All rights reserved. For demonstration purposes only.<br />
+      Contact: erschmitt [at] proton [dot] me
+      <div class="meta">
+        Built with Pandoc/LaTeX · Mermaid · GitHub Actions · AWS S3 · CloudFront
+      </div>
     </footer>
 
   </main>
