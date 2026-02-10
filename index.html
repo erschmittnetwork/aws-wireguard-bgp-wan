@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Eric Schmitt – Network Engineering Portfolio</title>
+  <title>Eric Schmitt — Network Engineer (CCNA)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Reuse document stylesheet -->
@@ -22,28 +22,27 @@
     .landing {
       max-width: 920px;
       margin: 0 auto;
-      background: var(--paper);
-      border-radius: 12px;
-      padding: 64px 72px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
     }
 
     /* Hero */
 
     .hero {
       text-align: center;
-      margin-bottom: 56px;
+      margin-bottom: 64px;
     }
 
     .hero h1 {
       margin: 0;
-      font-size: 2.4rem;
+      font-size: 2.3rem;
+      line-height: 1.25;
     }
 
-    .hero p {
+    .subtitle {
       margin-top: 12px;
+      text-align: center;
       color: var(--muted);
-      font-size: 1rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
     }
 
     .hero::after {
@@ -52,7 +51,7 @@
       width: 120px;
       height: 1px;
       background: var(--border);
-      margin: 32px auto 0;
+      margin: 28px auto 0;
     }
 
     /* Sections */
@@ -61,18 +60,15 @@
       margin-top: 40px;
     }
 
-    section p + p {
-      margin-top: 18px;
+    .landing p {
+      max-width: 820px;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1rem;
     }
 
-    /* Callout */
-
-    .callout {
-      background: #24262b;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 20px 24px;
-      margin: 32px 0;
+    section p + p {
+      margin-top: 18px;
     }
 
     /* Links panel */
@@ -94,7 +90,7 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       font-weight: 500;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.02em;
       text-decoration: none;
       color: var(--text);
     }
@@ -119,23 +115,16 @@
       font-size: 0.9rem;
       color: var(--muted);
     }
-
-    .meta {
-      margin-top: 8px;
-      font-size: 0.85rem;
-      color: var(--muted);
-      text-align: center;
-    }
   </style>
 </head>
 
 <body>
   <main class="landing">
 
-    <div class="hero">
-      <h1>Eric Schmitt — Network Engineering Portfolio</h1>
-      <p>CCNA · AWS · WireGuard · BGP · Automation · CI/CD</p>
-    </div>
+    <header class="hero">
+      <h1>Eric Schmitt — Network Engineer (CCNA)</h1>
+      <p class="subtitle">Secure WAN, BGP, and AWS Automation</p>
+    </header>
 
     <section>
       <p>
@@ -145,32 +134,31 @@
       </p>
 
       <p>
-        The environment is implemented as a proof-of-concept, but intentionally aligned with
-        enterprise architectural principles including deterministic routing behavior, encrypted
-        connectivity, automated failure handling, and operational observability. While not intended
-        to replicate full SD-WAN platforms, the design reflects realistic operational constraints
-        encountered in small-to-medium enterprise networks.
+        The environment is implemented as a proof-of-concept while intentionally aligned with
+        enterprise architectural principles: deterministic routing behavior, encrypted connectivity,
+        automated failure handling, and operational observability. Although not intended to replace
+        full SD-WAN platforms, the design reflects realistic constraints found in small-to-medium
+        enterprise networks.
       </p>
 
       <p>
         The solution demonstrates how a minimal cloud footprint—two hub nodes and multiple remote
         spokes—can deliver secure WAN connectivity, dynamic routing, and automated hub failover
-        without reliance on proprietary SD-WAN controllers.
+        without reliance on proprietary controllers.
       </p>
 
       <p>
         The author is a Cisco Certified Network Associate (CCNA) with a focus on routing, switching,
-        and secure cloud-connected WAN design.
+        and secure cloud-connected WAN architecture.
       </p>
 
       <p>
-        This site is delivered through a GitHub-to-AWS CI/CD pipeline. Source documentation and
-        diagrams are version-controlled in GitHub. Automated workflows render Mermaid diagrams,
-        build HTML and PDF artifacts using Pandoc, and publish content to AWS via S3 and CloudFront,
-        enabling deterministic builds and continuous delivery of the portfolio.
+        This site itself is delivered through a GitHub-to-AWS CI/CD pipeline. Source documentation and
+        diagrams are version-controlled in GitHub. Automated workflows render Mermaid diagrams, build
+        HTML and PDF artifacts using Pandoc, and publish content to AWS via S3 and CloudFront, enabling
+        deterministic builds and continuous delivery of the portfolio.
       </p>
     </section>
-
 
     <section class="links">
       <a href="/docs/aws-wireguard-bgp-wan.html">View Lab Document (HTML)</a>
@@ -179,7 +167,7 @@
     </section>
 
     <footer>
-      © 2026 Eric Schmitt. All rights reserved. For demonstration purposes only.<br />
+      © 2026 Eric Schmitt. All rights reserved.<br />
       Contact: erschmitt [at] proton [dot] me
     </footer>
 
