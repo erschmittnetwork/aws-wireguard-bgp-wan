@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Eric Schmitt — Network Engineer (CCNA)</title>
+  <title>Eric Schmitt | CCNA Network Engineering Portfolio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Reuse document stylesheet -->
@@ -129,48 +129,40 @@
   <main class="landing">
 
     <header class="hero">
-      <h1>Eric Schmitt — Network Engineer (CCNA)</h1>
-      <p class="subtitle">Secure WAN, BGP, and AWS Automation</p>
+      <h1>Eric Schmitt</h1>
+      <p class="subtitle">CCNA Network Engineering Portfolio</p>
+      <p class="project-focus">
+        Flagship Project: AWS WireGuard BGP WAN with Automated High-Availability Failover
+      </p>
     </header>
 
     <section>
       <p>
-        This site hosts a technical lab documenting the design, implementation, and validation
-        of an AWS-hosted hub-and-spoke WAN architecture using WireGuard for encrypted transport,
-        FRRouting (BGP) for dynamic routing, and AWS-native automation for high-availability failover.
+        <strong>Project Focus</strong>
+        This project implements an AWS-hosted hub-and-spoke WAN using WireGuard for encrypted transport, FRRouting (BGP) for dynamic routing, and automated failover orchestration.
       </p>
 
       <p>
-        The environment is implemented as a proof-of-concept while intentionally aligned with
-        enterprise architectural principles: deterministic routing behavior, encrypted connectivity,
-        automated failure handling, and operational observability. Although not intended to replace
-        full SD-WAN platforms, the design reflects realistic constraints found in small-to-medium
-        enterprise networks.
+        <strong>Architecture Principles</strong>
+        The lab models enterprise WAN design: deterministic BGP routing, encrypted transport, automated failure handling, and operational observability under realistic SME constraints.
       </p>
 
       <p>
-        The solution demonstrates how a minimal cloud footprint—two hub nodes and multiple remote
-        spokes—can deliver secure WAN connectivity, dynamic routing, and automated hub failover
-        without reliance on proprietary controllers.
+        <strong>Technical Outcome</strong>
+        Two AWS hub nodes and multiple remote spokes provide WireGuard-encrypted WAN connectivity, dynamic BGP routing, and automated hub failover without proprietary SD-WAN platforms.
       </p>
 
       <p>
-        The author is a Cisco Certified Network Associate (CCNA) with a focus on routing, switching,
-        and secure cloud-connected WAN architecture.
-      </p>
-
-      <p>
-        This site itself is delivered through a GitHub-to-AWS CI/CD pipeline. Source documentation and
-        diagrams are version-controlled in GitHub. Automated workflows render Mermaid diagrams, build
-        HTML and PDF artifacts using Pandoc, and publish content to AWS via S3 and CloudFront, enabling
-        deterministic builds and continuous delivery of the portfolio.
+        <strong>Delivery Pipeline</strong>
+        Source documentation and diagrams are version-controlled in GitHub. CI/CD workflows render Mermaid diagrams, build HTML/PDF artifacts with Pandoc, and deploy via S3 and CloudFront for deterministic, repeatable delivery.
       </p>
     </section>
+
 
     <section class="links">
       <a href="/docs/aws-wireguard-bgp-wan.html">View Lab Document (HTML)</a>
       <a href="/docs/aws-wireguard-bgp-wan.pdf">Download Lab Document (PDF)</a>
-      <a href="https://github.com/erschmittnetwork/awsblog/">View GitHub Repository</a>
+      <a href="https://github.com/erschmittnetwork/aws-wireguard-bgp-wan">View GitHub Repository</a>
     </section>
 
     <footer>
