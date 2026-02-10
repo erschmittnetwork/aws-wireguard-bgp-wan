@@ -1,44 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Eric Schmitt Network Engineering Portfolio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/style.css">
+  <meta charset="utf-8" />
+  <title>Your Name – Networking Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Reuse document stylesheet -->
+  <link rel="stylesheet" href="assets/doc.css" />
+
+  <style>
+    /* Landing-page specific overrides (no sidebar) */
+
+    body {
+      padding: 96px 72px;
+    }
+
+    #TOC {
+      display: none;
+    }
+
+    .landing {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .landing h1 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .links {
+      margin-top: 48px;
+      display: grid;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .links a {
+      display: inline-block;
+      padding: 12px 18px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text);
+      background: #24262b;
+    }
+
+    .links a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+  </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>Eric Schmitt Network Engineering Portfolio</h1>
-    <div class="subtitle">
-      AWS • WireGuard • BGP • Automation • High Availability
-    </div>
+  <main class="landing">
 
-    <p>
-      This site hosts a production-style networking lab demonstrating the design,
-      implementation, and validation of a secure, highly available WAN built on AWS.
-    </p>
+    <header>
+      <h1>Your Name — Network Engineering Portfolio</h1>
+    </header>
 
-    <p>
-      The project implements a hub-and-spoke architecture using WireGuard as the encrypted
-      underlay and BGP as the dynamic routing overlay. High availability is achieved through
-      AWS-native automation that performs deterministic hub failover using Elastic IP
-      reassociation, EventBridge, and Lambda.
-    </p>
+    <section>
+      <p>
+        This site hosts a technical lab demonstrating the design, implementation, and validation
+        of an AWS-hosted hub-and-spoke WAN architecture using WireGuard for encrypted transport,
+        FRRouting (BGP) for dynamic routing, and AWS-native automation for high-availability failover.
+      </p>
 
-    <p>
-      The lab emphasizes enterprise-aligned design principles including underlay/overlay
-      separation, deterministic routing behavior, automated recovery, and operational
-      observability. All architecture, validation, and runbook documentation is maintained
-      as code and published automatically using GitHub Actions, Pandoc, and CloudFront-backed
-      S3 hosting.
-    </p>
+      <p>
+        The environment is implemented as a proof-of-concept, but intentionally aligned with
+        enterprise architectural principles: deterministic routing behavior, encrypted connectivity,
+        automated failure handling, and operational observability. While the design does not attempt
+        to replicate full SD-WAN platforms, all components reflect realistic operational constraints
+        found in small-to-medium enterprise deployments.
+      </p>
 
-    <div class="links">
-      <a href="docs/aws-wireguard-bgp-wan.html">View Lab (HTML)</a>
-      <a href="docs/aws-wireguard-bgp-wan.pdf">Download PDF</a>
-      <a href="https://github.com/yourname/yourrepo">GitHub Repository</a>
-      <a href="mailto:youremail@example.com">Contact Me</a>
-    </div>
-  </div>
+      <p>
+        The solution demonstrates how a minimal cloud footprint—two hub nodes and multiple remote
+        spokes—can deliver encrypted WAN connectivity, dynamic routing, and automated hub failover
+        without reliance on proprietary SD-WAN controllers.
+      </p>
+
+      <p>
+        This site itself is delivered through a GitHub-to-AWS CI/CD pipeline. Source documentation,
+        diagrams, and infrastructure definitions are version-controlled in GitHub. On each update,
+        automated workflows render Mermaid diagrams, build HTML and PDF artifacts using Pandoc,
+        and publish the site to AWS via S3 and CloudFront. This ensures deterministic builds,
+        reproducible documentation, and continuous delivery of the portfolio.
+      </p>
+    </section>
+
+    <section class="links">
+      <a href="/docs/aws-wireguard-bgp-wan.html">View Lab Document (HTML)</a>
+      <a href="/docs/aws-wireguard-bgp-wan.pdf">Download Lab Document (PDF)</a>
+      <a href="https://github.com/">View Source on GitHub</a>
+      <a href="#">Contact: yourname [at] domain [dot] com</a>
+    </section>
+
+    <footer>
+      © 2026 Eric Schmitt. All rights reserved. For demonstration purposes only.
+    </footer>
+
+  </main>
 </body>
 </html>
