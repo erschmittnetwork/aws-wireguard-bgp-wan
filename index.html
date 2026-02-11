@@ -43,10 +43,19 @@
       margin-bottom: 18px;
     }
 
-    .hero h1 {
+    .hero h1.name {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
       font-size: 2.4rem;
-      letter-spacing: 0.02em;
-      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .hero h1.name .initial {
+      font-size: 1.25em;
+      letter-spacing: 0.12em;
     }
 
     .subtitle {
@@ -163,7 +172,10 @@
   <main class="landing">
 
     <header class="hero">
-      <h1>Eric Schmitt</h1>
+      <h1 class="name">
+        <span class="initial">E</span>RIC
+        <span class="initial">S</span>CHMITT
+      </h1>
       <p class="subtitle">CCNA Network Engineering Portfolio</p>
 
       <div class="hero-divider"></div>
