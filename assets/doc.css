@@ -180,12 +180,12 @@ img {
 #site-header {
   position: fixed;
   top: 0;
-
-  /* Sidebar offset */
   left: 280px;
-
-  /* Match body column */
-  width: 920px;
+  right: 0;
+  
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
 
   height: 52px;
 
