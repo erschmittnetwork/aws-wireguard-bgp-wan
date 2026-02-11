@@ -39,17 +39,14 @@
     }
 
     .hero h1 {
-      margin: 0;
-      font-size: 2.3rem;
-      line-height: 1.25;
+      font-size: 2.5rem;
+      letter-spacing: 0.02em;
     }
 
     .subtitle {
-      margin-top: 12px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 1.05rem;
-      letter-spacing: 0.02em;
+      font-size: 1.15rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
 
     .hero::after {
@@ -59,6 +56,27 @@
       height: 1px;
       background: var(--border);
       margin: 28px auto 0;
+    }
+    
+    .project-focus {
+      margin-top: 22px;
+      padding: 14px 22px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #24262b;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .project-focus span {
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
     }
 
     /* Sections */
@@ -76,6 +94,27 @@
 
     section p + p {
       margin-top: 18px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 22px;
+      margin-top: 26px;
+    }
+
+    .label {
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding-top: 4px;
+    }
+
+    .content {
+      font-size: 1rem;
+      line-height: 1.65;
     }
 
     /* Links panel */
@@ -131,31 +170,45 @@
     <header class="hero">
       <h1>Eric Schmitt</h1>
       <p class="subtitle">CCNA Network Engineering Portfolio</p>
-      <p class="project-focus">
-        Flagship Project: AWS WireGuard BGP WAN with Automated HA Hub Failover
-      </p>
+      <div class="project-focus">
+        <span>Flagship Project</span>
+        AWS WireGuard BGP WAN with Automated HA Hub Failover
+      </div>
     </header>
 
     <section>
-      <p>
-        <strong>Project Focus</strong>
-        This project implements an AWS-hosted hub-and-spoke WAN using WireGuard for encrypted transport, FRRouting (BGP) for dynamic routing, and automated failover orchestration.
-      </p>
+        <div class="row">
+        <div class="label">Project Focus</div>
+        <div class="content">
+          This project implements an AWS-hosted hub-and-spoke WAN using WireGuard for encrypted
+          transport, FRRouting (BGP) for dynamic routing, and automated failover orchestration.
+        </div>
+      </div>
 
-      <p>
-        <strong>Architecture Principles</strong>
-        The lab models enterprise WAN design: deterministic BGP routing, encrypted transport, automated failure handling, and operational observability under realistic SME constraints.
-      </p>
+      <div class="row">
+        <div class="label">Architecture Principles</div>
+        <div class="content">
+          The lab models enterprise WAN design: deterministic BGP routing, encrypted transport,
+          automated failure handling, and operational observability under realistic SME constraints.
+        </div>
+      </div>
 
-      <p>
-        <strong>Technical Outcome</strong>
-        Two AWS hub nodes and multiple remote spokes provide WireGuard-encrypted WAN connectivity, dynamic BGP routing, and automated hub failover without proprietary SD-WAN platforms.
-      </p>
+      <div class="row">
+        <div class="label">Technical Outcome</div>
+        <div class="content">
+          Two AWS hub nodes and multiple remote spokes provide WireGuard-encrypted WAN connectivity,
+          dynamic BGP routing, and automated hub failover without proprietary SD-WAN platforms.
+        </div>
+      </div>
 
-      <p>
-        <strong>Delivery Pipeline</strong>
-        Source documentation and diagrams are version-controlled in GitHub. CI/CD workflows render Mermaid diagrams, build HTML/PDF artifacts with Pandoc, and deploy via S3 and CloudFront for deterministic, repeatable delivery.
-      </p>
+      <div class="row">
+        <div class="label">Delivery Pipeline</div>
+        <div class="content">
+          Source documentation and diagrams are version-controlled in GitHub. CI/CD workflows render
+          Mermaid diagrams, build HTML/PDF artifacts with Pandoc, and deploy via S3 and CloudFront for
+          deterministic, repeatable delivery.
+        </div>
+      </div>
     </section>
 
 
