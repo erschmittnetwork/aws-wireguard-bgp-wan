@@ -181,11 +181,9 @@ img {
   position: fixed;
   top: 0;
   left: 280px;
-  right: 0;
+  width: calc(100% - 280px);
   
   max-width: 920px;
-  margin-left: auto;
-  margin-right: auto;
 
   height: 52px;
 
