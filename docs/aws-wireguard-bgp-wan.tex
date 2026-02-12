@@ -1,5 +1,32 @@
+% =============================================================================
+% Document: AWS WireGuard BGP WAN with Automated HA Hub Failover
+% Author: Eric Schmitt
+% Purpose:
+%   Enterprise-style technical documentation of a lab-based WAN reference
+%   architecture. Written in structured, RFC-aligned format for clarity,
+%   reproducibility, and professional presentation.
+%
+% Build Notes:
+%   - Compiled via standard LaTeX toolchain (Pandoc/pdflatex).
+%   - Hyperref used for internal cross-referencing and PDF metadata behavior.
+% =============================================================================
+
+% -----------------------------------------------------------------------------
+% Document Class
+% -----------------------------------------------------------------------------
+% Standard article class selected for portability and predictable layout.
+% 11pt provides professional readability without excess pagination.
 \documentclass[11pt]{article}
 
+% -----------------------------------------------------------------------------
+% Hyperref Configuration
+% -----------------------------------------------------------------------------
+% Enables:
+%   - Internal section cross-referencing
+%   - Clickable TOC entries
+%   - Clean PDF open behavior (FitH view)
+%
+% No custom link coloring applied to preserve formal documentation tone.
 \usepackage{hyperref}
 
 \hypersetup{
@@ -7,6 +34,11 @@
   pdfstartview=FitH,
 }
 
+% -----------------------------------------------------------------------------
+% Title Metadata
+% -----------------------------------------------------------------------------
+% Title and versioning intentionally reflect production-style document control.
+% Copyright statement embedded in author field for formal presentation.
 \title{AWS WireGuard BGP WAN with Automated HA Hub Failover}
 \subtitle{Version 1.3}
 \author{© 2026 Eric Schmitt. All rights reserved.}
@@ -16,6 +48,13 @@
 \thispagestyle{empty}
 \newpage
 
+% =============================================================================
+% SECTION 1: DOCUMENT CONTROL
+%
+% Mirrors enterprise and standards-body documentation patterns.
+% Establishes traceability, scope boundaries, terminology control, and
+% audience assumptions before technical implementation details begin.
+% =============================================================================
 \section{1. Document Control}
 \label{sec:document-control}
 
@@ -154,6 +193,23 @@ A high-level reference architecture diagram is included later in this document (
   \item AWS-controlled Elastic IP reassociation for automated failover and failback
 \end{itemize}
 
+% =============================================================================
+% SECTION 2: EXECUTIVE SUMMARY
+%
+% Purpose:
+%   Provides a high-level architectural and operational overview of the
+%   implemented WAN design prior to deep technical validation and
+%   configuration detail in later sections.
+%
+% Design Intent:
+%   - Frame the solution in enterprise networking terminology.
+%   - Summarize topology, routing model, and HA mechanisms.
+%   - Define operational behaviors validated in the lab.
+%
+% Audience:
+%   Executives, senior engineers, or reviewers who require architectural
+%   clarity without immediately engaging in configuration-level detail.
+% =============================================================================
 \section{2. Executive Summary}
 \label{sec:executive-summary}
 
@@ -237,6 +293,23 @@ A high-level architecture diagram is included later in this document using Merma
 
 The diagram is intended as a conceptual aid and does not replace the detailed configurations and validation evidence provided elsewhere.
 
+% =============================================================================
+% SECTION 3: SCOPE AND OBJECTIVES
+%
+% Purpose:
+%   Formally defines implementation boundaries, exclusions, and technical
+%   objectives for the lab environment.
+%
+% Architectural Role:
+%   - Establishes explicit in-scope vs out-of-scope capabilities.
+%   - Documents intentional design constraints.
+%   - Prevents assumption of unimplemented enterprise features.
+%
+% Documentation Rationale:
+%   This section functions as a control boundary similar to an RFC scope
+%   statement. It ensures reviewers evaluate the architecture against
+%   declared objectives rather than inferred expectations.
+% =============================================================================
 \section{3. Scope and Objectives}
 \label{sec:scope-objectives}
 
@@ -313,6 +386,22 @@ While this document is primarily technical, it is structured to be accessible to
 
 The document is suitable both as a learning artifact and as a reference baseline for adapting the design to a production WAN environment.
 
+% =============================================================================
+% SECTION 4: REFERENCE ARCHITECTURE
+%
+% Purpose:
+%   Defines the canonical architectural model for the lab implementation,
+%   including topology, addressing, redundancy, and control-plane separation.
+%
+% Architectural Significance:
+%   This section serves as the normative design baseline against which
+%   configuration and validation sections are evaluated.
+%
+% Rendering Considerations:
+%   Includes externally generated diagram artifacts rendered from Mermaid.
+%   Diagram source is maintained separately and embedded as a static PNG
+%   for deterministic HTML and PDF output.
+% =============================================================================
 \section{4. Reference Architecture}
 \label{sec:reference-architecture}
 
@@ -363,6 +452,25 @@ The source-of-truth for this diagram is maintained in Mermaid format under
 HTML and PDF outputs are consistent and deterministic.
 \end{quote}
 
+% ---------------------------------------------------------------------------
+% FIGURE: LOGICAL ARCHITECTURE
+%
+% Source of truth:
+%   diagrams/logical-architecture.mmd
+%
+% Build behavior:
+%   Mermaid diagram is rendered during CI/CD into a static PNG artifact
+%   at diagrams/logical-architecture.png.
+%
+% Rationale:
+%   - Ensures deterministic PDF builds (no runtime Mermaid dependency).
+%   - Maintains single diagram source for web and PDF outputs.
+%
+% WARNING:
+%   If directory structure changes, update both:
+%     1. CI/CD render path
+%     2. \includegraphics path below
+% ---------------------------------------------------------------------------
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{diagrams/logical-architecture.png}
@@ -438,6 +546,24 @@ While implemented as a lab, this architecture aligns closely with real-world ent
 
 The design can be extended to support additional hubs, active/active routing, or tenant separation, but those enhancements are outside the scope of this reference implementation (see Section~\ref{sec:design-tradeoffs}).
 
+% =============================================================================
+% SECTION 5: DETAILED DESIGN
+%
+% Purpose:
+%   Defines the normative technical implementation of the reference
+%   architecture, including underlay transport, addressing, identity model,
+%   and redundancy mechanics.
+%
+% Architectural Role:
+%   This section translates the conceptual architecture (Section 4) into
+%   explicit configuration patterns and deterministic behavior models.
+%
+% Change Sensitivity:
+%   Modifications in this section may impact validation procedures,
+%   failover behavior, routing convergence, and security posture.
+%   Cross-reference Section 7 (Validation) and Section 6 (HA Design)
+%   when altering design elements.
+% =============================================================================
 \section{5. Detailed Design}
 \label{sec:detailed-design}
 
@@ -502,6 +628,16 @@ This model provides:
 
 Each hub--spoke tunnel uses a dedicated /30 transit subnet:
 
+% ---------------------------------------------------------------------------
+% UNDERLAY ADDRESSING TABLE
+%
+% Each hub instance is configured identically with these interface addresses.
+% Only one hub is reachable at a time due to Elastic IP association.
+%
+% Design Note:
+%   Duplicate addressing across hubs is intentional and required to preserve
+%   deterministic failover without modifying spoke configuration.
+% ---------------------------------------------------------------------------
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
@@ -516,6 +652,18 @@ SITE3-LF1 & 10.100.3.1/30 & 10.100.3.2/30 \\
 
 Both hub instances use identical interface IP addressing. At any given time, only the hub associated with the Elastic IP is reachable.
 
+% ---------------------------------------------------------------------------
+% CRYPTOGRAPHIC IDENTITY STRATEGY
+%
+% Both hubs intentionally share the same WireGuard keypair to represent a
+% single logical cryptographic endpoint. This is required to maintain tunnel
+% continuity during Elastic IP reassociation.
+%
+% SECURITY NOTE:
+%   Key reuse across hosts is normally discouraged, but in this design the
+%   hubs represent a single logical service identity rather than independent
+%   peers.
+% ---------------------------------------------------------------------------
 \subsubsection{5.3.3 Cryptographic Identity Model}
 \label{sec:wg-crypto-identity}
 

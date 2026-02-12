@@ -1,48 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!--
+  ======================================================================
+  Portfolio Landing Page
+  Purpose:
+    Primary entry point for network engineering portfolio.
+    Serves as summary and navigation gateway to flagship lab project.
+
+  Design Model:
+    - Reuses shared document stylesheet (doc.css)
+    - Overrides layout to remove sidebar/navigation chrome
+    - Presents focused, single-column executive summary
+  ======================================================================
+  -->
+
   <meta charset="utf-8" />
   <title>Eric Schmitt | Network Engineering Portfolio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Reuse document stylesheet -->
+  <!--
+    Shared stylesheet:
+      Provides typography, color variables, and base theme.
+      Landing page disables sidebar-specific layout rules below.
+  -->
   <link rel="stylesheet" href="assets/doc.css" />
 
   <style>
-    /* Landing-page specific overrides (no sidebar) */
+    /* ==================================================================
+       Landing Page Layout Overrides
+       Purpose:
+         Disable documentation sidebar model and convert to
+         centered single-column presentation.
+       ================================================================== */
 
     html {
-      background: #141518;
+      background: #141518; /* Distinct shell background */
     }
 
     body {
       margin: 0 auto;
       padding: 36px 56px;
       max-width: 100%;
-      background: transparent;
+      background: transparent; /* Remove paper surface */
     }
 
+    /* Center content vertically and horizontally */
     html, body {
       display: flex;
       justify-content: center;
     }
 
+    /* Disable TOC */
     #TOC {
       display: none;
     }
 
     .landing {
       width: 100%;
-      max-width: 920px;
+      max-width: 920px; /* Maintain readable line length */
     }
 
-    /* Hero */
+    /* ==================================================================
+       HERO SECTION
+       ================================================================== */
 
     .hero {
       text-align: center;
       margin-bottom: 18px;
     }
 
+    /* Primary identity mark */
     .hero h1.name {
       font-family: "Georgia", "Times New Roman", serif;
       font-weight: 500;
@@ -53,19 +81,22 @@
       color: var(--text);
     }
 
+    /* Enlarged initials for visual distinction */
     .hero h1.name .initial {
       font-size: 1.25em;
       letter-spacing: 0.12em;
     }
 
+    /* Certification accent line */
     .certline {
       margin: 4px 0 6px;
-      font-size: 0.78rem;
+      font-size: 0.7rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--muted);
     }
 
+    /* Portfolio subtitle */
     .subtitle {
       font-size: 1.05rem;
       letter-spacing: 0.1em;
@@ -73,6 +104,7 @@
       margin: 0;
     }
 
+    /* Structural divider */
     .hero-divider {
       width: 100%;
       max-width: 100%;
@@ -81,6 +113,7 @@
       margin: 14px auto 12px;
     }
 
+    /* Featured project emphasis block */
     .project-focus {
       margin-top: 12px;
       padding: 10px 18px;
@@ -102,7 +135,10 @@
       letter-spacing: 0.12em;
     }
 
-    /* Sections */
+    /* ==================================================================
+       SECTION GRID LAYOUT
+       Two-column label/content model
+       ================================================================== */
 
     section {
       margin-top: 18px;
@@ -129,7 +165,9 @@
       line-height: 1.55;
     }
 
-    /* Links panel */
+    /* ==================================================================
+       ACTION LINKS PANEL
+       ================================================================== */
 
     .links {
       margin-top: 22px;
@@ -153,17 +191,14 @@
       color: var(--text);
     }
 
-    .links a::before {
-      content: "→ ";
-      color: var(--accent);
-    }
-
     .links a:hover {
       border-color: var(--accent);
       color: var(--accent);
     }
 
-    /* Footer */
+    /* ==================================================================
+       FOOTER
+       ================================================================== */
 
     footer {
       margin-top: 26px;
@@ -177,24 +212,34 @@
 </head>
 
 <body>
+  <!--
+    Main content container.
+    Single-column layout optimized for executive readability.
+  -->
   <main class="landing">
 
+    <!-- Hero / Identity Section -->
     <header class="hero">
       <h1 class="name">
         <span class="initial">E</span>RIC
         <span class="initial">S</span>CHMITT
       </h1>
+
+      <!-- Credential positioning directly under identity -->
       <p class="certline">Cisco Certified Network Associate (CCNA)</p>
+
       <p class="subtitle">Network Engineering Portfolio</p>
 
       <div class="hero-divider"></div>
 
+      <!-- Featured lab project emphasis -->
       <div class="project-focus">
         <span>Featured Lab Project:</span>
         <strong>AWS WireGuard BGP WAN with Automated HA Hub Failover</strong>
       </div>
     </header>
 
+    <!-- Executive Technical Summary -->
     <section>
       <div class="row">
         <div class="label">Project Description</div>
@@ -225,12 +270,14 @@
       </div>
     </section>
 
+    <!-- Primary navigation actions -->
     <section class="links">
       <a href="/docs/aws-wireguard-bgp-wan.html">View Lab Document (HTML)</a>
       <a href="/docs/aws-wireguard-bgp-wan.pdf">Download Lab Document (PDF)</a>
       <a href="https://github.com/erschmittnetwork/aws-wireguard-bgp-wan">View GitHub Repository</a>
     </section>
 
+    <!-- Footer / contact -->
     <footer>
       © 2026 Eric Schmitt. All rights reserved.<br />
       Contact: erschmitt [at] proton [dot] me

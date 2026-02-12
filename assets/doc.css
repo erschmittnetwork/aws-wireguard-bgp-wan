@@ -1,23 +1,46 @@
+/* -------------------------------------------------------------------
+   Document Theme Variables
+   Purpose:
+     Centralized color definitions for document shell and content.
+
+   Design Model:
+     - "shell" = application chrome (sidebar, header, outer background)
+     - "paper" = readable document surface
+     - High contrast maintained for long-form technical reading
+------------------------------------------------------------------- */
+
 :root {
-  --bg: #1e1f23;
-  --paper: #2a2c31;
-  --text: #e6e6e6;
-  --muted: #b0b0b0;
-  --border: #3a3d45;
-  --accent: #4fa3ff;
-  --codebg: #15161a;
-  --shell: #14161b;
+  --shell: #141518;   /* Application chrome background */
+  --paper: #2a2c31;   /* Document content background */
+  --text: #e6e6e6;    /* Primary body text */
+  --muted: #b0b0b0;   /* Secondary / TOC links */
+  --border: #3a3d45;  /* Structural borders */
+  --accent: #4fa3ff;  /* Interactive elements */
+  --codebg: #15161a;  /* Code block background */
 }
+
+/* -------------------------------------------------------------------
+   Global Shell Background
+   Applies only outside the document "paper" surface.
+------------------------------------------------------------------- */
 
 html {
   background: var(--shell);
 }
 
-/* ---------------- Document Body ---------------- */
+/* ===================================================================
+   DOCUMENT BODY (Readable Content Surface)
+   =================================================================== */
+
+/* 
+   The body represents the fixed-width "paper" area.
+   Left padding reserves space for the persistent sidebar.
+   Top padding accounts for sticky header offset.
+*/
 
 body {
   margin: 0;
-  padding: 64px 72px 64px 360px; /* room for sidebar */
+  padding: 64px 72px 64px 360px; /* Left offset = sidebar + spacing */
   max-width: 1200px;
 
   background: var(--paper);
@@ -27,14 +50,25 @@ body {
   box-sizing: border-box;
 }
 
-/* Center readable column */
+/* 
+   Constrain readable line length for technical documentation.
+   Prevents excessive horizontal span on large displays.
+*/
+
 body > *:not(#TOC) {
   max-width: 920px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* ---------------- Sidebar ---------------- */
+/* ===================================================================
+   SIDEBAR (Table of Contents)
+   =================================================================== */
+
+/*
+   Fixed-position navigation column.
+   Independent scroll region to preserve document scroll state.
+*/
 
 #TOC {
   position: fixed;
@@ -50,7 +84,7 @@ body > *:not(#TOC) {
   overflow: hidden;
 }
 
-/* Sidebar title */
+/* Sidebar title (Pandoc-generated) */
 #TOC h2 {
   margin: 0;
   padding: 24px 20px 12px 20px;
@@ -59,7 +93,11 @@ body > *:not(#TOC) {
   font-size: 1.2rem;
 }
 
-/* Scroll container */
+/*
+   Scroll container for hierarchical TOC entries.
+   Scrollbar gutter reserved to prevent layout shift.
+*/
+
 #TOC > ul {
   max-height: calc(100vh - 80px);
   overflow-y: auto;
@@ -70,11 +108,12 @@ body > *:not(#TOC) {
   scrollbar-gutter: stable;
 }
 
-/* Proper indentation */
+/* Remove default list styling for structured indentation control */
 #TOC ul {
   list-style: none;
 }
 
+/* Hierarchical indentation for nested sections */
 #TOC ul ul {
   padding-left: 16px;
 }
@@ -83,20 +122,24 @@ body > *:not(#TOC) {
   padding-left: 28px;
 }
 
+/* Vertical spacing between TOC entries */
 #TOC li {
   margin: 6px 0;
 }
 
+/* Default TOC link styling */
 #TOC a {
   color: var(--muted);
   text-decoration: none;
   font-size: 0.9rem;
 }
 
+/* Hover state for navigation clarity */
 #TOC a:hover {
   color: var(--accent);
 }
 
+/* WebKit scrollbar styling for visual consistency */
 #TOC::-webkit-scrollbar {
   width: 8px;
 }
@@ -106,7 +149,14 @@ body > *:not(#TOC) {
   border-radius: 4px;
 }
 
-/* ---------------- Title ---------------- */
+/* ===================================================================
+   DOCUMENT TITLE BLOCK
+   =================================================================== */
+
+/*
+   Pandoc-generated title section.
+   Centered for visual hierarchy at document start.
+*/
 
 #title-block-header {
   text-align: center;
@@ -118,27 +168,41 @@ body > *:not(#TOC) {
   line-height: 1.3;
   margin: 0;
   white-space: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: break-word; /* Prevent overflow on narrow screens */
 }
 
-/* ---------------- Typography ---------------- */
+/* ===================================================================
+   TYPOGRAPHY
+   =================================================================== */
 
+/* Section headers */
 h1, h2, h3, h4 {
   color: #ffffff;
   margin-top: 2em;
 }
 
+/* Paragraph and list readability tuning */
 p, li {
   line-height: 1.65;
 }
 
-/* ---------------- Links ---------------- */
+/* ===================================================================
+   LINKS
+   =================================================================== */
 
+/* Default hyperlink styling within document body */
 a {
   color: var(--accent);
 }
 
-/* ---------------- Tables ---------------- */
+/* ===================================================================
+   TABLES
+   =================================================================== */
+
+/*
+   Tables are full-width within constrained content column.
+   Borders provide structural clarity for technical data.
+*/
 
 table {
   width: 100%;
@@ -155,7 +219,14 @@ th {
   background: #24262b;
 }
 
-/* ---------------- Code ---------------- */
+/* ===================================================================
+   CODE BLOCKS
+   =================================================================== */
+
+/*
+   Distinct visual separation for configuration snippets,
+   CLI output, and code examples.
+*/
 
 pre {
   background: var(--codebg);
@@ -168,7 +239,14 @@ code {
   color: #ddd;
 }
 
-/* ---------------- Images ---------------- */
+/* ===================================================================
+   IMAGES / DIAGRAMS
+   =================================================================== */
+
+/*
+   Diagrams are centered and constrained to maintain
+   proportional scaling within the content column.
+*/
 
 img {
   max-width: 90%;
@@ -176,7 +254,15 @@ img {
   margin: 36px auto;
 }
 
-/* ---------------- Sticky Header ---------------- */
+/* ===================================================================
+   STICKY HEADER (Top Navigation)
+   =================================================================== */
+
+/*
+   Persistent header aligned with document column.
+   Left offset equals sidebar width.
+   Width calculation prevents overlap with sidebar.
+*/
 
 #site-header {
   position: fixed;
@@ -199,20 +285,24 @@ img {
   padding: 0 32px;
   box-sizing: border-box;
 
-  z-index: 2000;
+  z-index: 2000; /* Ensure header overlays document content */
 }
 
-/* Header links */
+/* Header link styling */
 #site-header a {
   color: var(--text);
   text-decoration: none;
 }
 
+/* Header hover state */
 #site-header a:hover {
   color: var(--accent);
 }
 
-/* Push document down for header */
+/*
+   Additional top padding to prevent document overlap
+   with fixed-position header.
+*/
 body {
   padding-top: 120px;
 }
