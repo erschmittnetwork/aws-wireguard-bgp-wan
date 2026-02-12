@@ -1,35 +1,5 @@
-%%=====================================================================
-%% Logical Architecture Diagram
-%%
-%% Purpose:
-%%   Illustrates high-level WAN topology for the AWS WireGuard BGP lab.
-%%
-%% Scope:
-%%   - Logical connectivity only (not physical rack topology)
-%%   - Control-plane and data-plane relationships
-%%   - Failover mechanism via Elastic IP reassociation
-%%
-%% Exclusions:
-%%   - No route table visualization
-%%   - No packet-flow sequencing
-%%
-%% Layout Configuration:
-%%   - TD (top-down) flow for readability
-%%   - Increased nodeSpacing and rankSpacing for clarity
-%%   - htmlLabels enabled to allow line breaks in nodes
-%%=====================================================================
-
 %%{init: {'theme':'default','flowchart':{'htmlLabels': true, 'nodeSpacing':90, 'rankSpacing': 90}}}%%
 graph TD
-
-  %%-------------------------------------------------------------------
-  %% Spoke Sites (On-Prem / Virtualized)
-  %%
-  %% Modeled as Ubuntu 24.04 LTS virtual machines hosted on VMware.
-  %% Each spoke establishes:
-  %%   - WireGuard encrypted tunnel (data plane)
-  %%   - BGP peering session (control plane)
-  %%-------------------------------------------------------------------
   subgraph Sites["Spoke Sites (VMware - Ubuntu 24.04 LTS)"]
     direction TB
     SITE1["SITE1-LF1<br/>(Spoke)"]
@@ -37,53 +7,14 @@ graph TD
     SITE3["SITE3-LF1<br/>(Spoke)"]
   end
 
-  %%-------------------------------------------------------------------
-  %% AWS Hub Environment
-  %%
-  %% Single VPC in us-east-1 containing two hub instances.
-  %%
-  %% DC1-SP1:
-  %%   - Active hub under normal operation
-  %%   - Associated with Elastic IP
-  %%
-  %% DC1-SP2:
-  %%   - Standby hub
-  %%   - Assumes Elastic IP upon failover
-  %%
-  %% Elastic IP serves as stable ingress endpoint for spokes.
-  %%-------------------------------------------------------------------
   subgraph AWS["AWS EC2 VPC (us-east-1)"]
     direction TB
     HUB["DC1 Hub<br/>(EIP-associated)<br/>DC1-SP1 active OR<br/>DC1-SP2 standby"]
     HUB2["DC1-SP2<br/>(Standby)<br/>Assumes EIP on failover"]
   end
 
-  %%-------------------------------------------------------------------
-  %% Spoke-to-Hub Connectivity
-  %%
-  %% Underlay:
-  %%   - WireGuard encrypted UDP transport
-  %%
-  %% Overlay:
-  %%   - BGP peering for dynamic route advertisement
-  %%
-  %% All spokes peer with the active hub endpoint (EIP).
-  %%-------------------------------------------------------------------
   SITE1 -->|"WireGuard underlay<br/>BGP overlay"| HUB
   SITE2 -->|"WireGuard underlay<br/>BGP overlay"| HUB
   SITE3 -->|"WireGuard underlay<br/>BGP overlay"| HUB
 
-  %%-------------------------------------------------------------------
-  %% Hub Failover Automation
-  %%
-  %% Trigger Mechanism:
-  %%   - AWS EventBridge monitors hub state
-  %%
-  %% Action:
-  %%   - Lambda function reassigns Elastic IP
-  %%
-  %% Effect:
-  %%   - Standby hub assumes public endpoint
-  %%   - Spokes re-establish tunnels and BGP sessions
-  %%-------------------------------------------------------------------
   HUB -->|"AWS automation:<br/>EventBridge + Lambda<br/>(EIP reassociation)"| HUB2
