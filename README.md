@@ -1,55 +1,72 @@
 # AWS WireGuard BGP WAN with Automated HA Hub Failover
 
-This repository contains the complete documentation sources and publishing pipeline for an AWS-hosted hub-and-spoke WAN lab implementing encrypted transport, dynamic routing, and automated high-availability failover.
+## 1. Scope
 
-The lab is implemented as a proof-of-concept environment but is intentionally designed to align with enterprise-grade architectural principles, including deterministic routing behavior, encrypted overlay transport, automated failure handling, and operational observability under realistic small-to-medium enterprise constraints.
+This repository contains documentation sources and a publishing pipeline for an AWS-hosted hub-and-spoke WAN laboratory environment implementing encrypted overlay transport, dynamic routing, and automated high-availability hub failover.
 
-Infrastructure provisioning artifacts and configuration scripts are referenced in the lab document but are not included in this repository.
+The environment is implemented as a proof-of-concept and is designed to reflect enterprise WAN architectural principles, including deterministic routing behavior, separation of control and data planes, encrypted transport, automated failure handling, and operational observability under small-to-medium enterprise (SME) constraints.
 
----
-
-## Project Overview
-
-This lab documents the design, implementation, and validation of an AWS-based WAN architecture using:
-
-* **WireGuard** for encrypted transport
-* **FRRouting (BGP)** for dynamic routing
-* **AWS-native automation** for active/standby hub failover
-* **GitHub Actions CI/CD** for deterministic documentation build and deployment
-
-The architecture demonstrates that a minimal infrastructure footprint—two cloud-based hubs and multiple remote spokes—can deliver:
-
-* Encrypted WAN connectivity
-* Dynamic route propagation via BGP
-* Automated hub failover without proprietary SD-WAN platforms
-
-The solution intentionally models realistic enterprise design tradeoffs while remaining operationally constrained and technically focused.
+Infrastructure provisioning artifacts and node configuration scripts are referenced by the documentation but are not included in this repository.
 
 ---
 
-## Architecture Summary
+## 2. System Overview
 
-The documented topology consists of:
+The lab documents the design, implementation, and validation of a cloud-based WAN composed of:
 
-* Two AWS hub nodes (active/standby model)
-* Multiple remote spokes
-* WireGuard overlay tunnels
-* BGP peering between hubs and spokes
-* Automated Elastic IP reassignment for failover
+* WireGuard tunnels providing encrypted overlay connectivity
+* FRRouting (BGP) providing dynamic route exchange
+* AWS-native automation mechanisms enabling active/standby hub failover
+* A CI/CD pipeline producing deterministic documentation artifacts
 
-### Design Characteristics
+The topology models a minimal WAN footprint consisting of two cloud-based hubs and multiple remote spokes. The design avoids proprietary SD-WAN platforms and instead relies on open protocols and cloud-native primitives.
 
-* Deterministic BGP routing behavior
-* Encrypted overlay transport independent of cloud-native VPN constructs
-* Automated hub failover orchestration
-* Explicit separation of control plane (BGP) and encrypted data plane (WireGuard)
-* Validation testing of failure scenarios
-
-While not feature-complete relative to large-scale production WANs (e.g., VRFs, active/active hubs, SD-WAN controllers), architectural decisions reflect realistic operational constraints and failure models encountered in SME environments.
+The system is intended to support encrypted connectivity, dynamic route propagation, and automated hub role transition under failure conditions.
 
 ---
 
-## Repository Structure
+## 3. Architecture
+
+### 3.1 Topology
+
+The documented topology includes:
+
+* Two AWS hub nodes operating in an active/standby role
+* Multiple spoke nodes establishing overlay tunnels to the hubs
+* WireGuard tunnels between hubs and spokes
+* BGP peering sessions for control-plane route exchange
+* Elastic IP reassignment for hub failover
+
+### 3.2 Control and Data Planes
+
+* **Control Plane:** BGP is used to distribute reachability information and enforce deterministic routing behavior.
+* **Data Plane:** WireGuard tunnels provide encrypted transport independent of AWS-managed VPN services.
+
+This separation allows routing logic and encrypted transport to be evaluated independently during failure and convergence testing.
+
+### 3.3 Failover Model
+
+The failover mechanism is based on:
+
+* Hub role designation (active/standby)
+* Automated reassignment of Elastic IP addresses
+* BGP session re-establishment following hub transition
+
+Failure scenarios are validated to observe routing convergence and tunnel reformation behavior.
+
+### 3.4 Design Constraints
+
+The lab intentionally omits features common in large-scale WAN deployments, including:
+
+* VRF segmentation
+* Active/active hub architectures
+* Centralized SD-WAN controllers
+
+The objective is to model realistic SME operational constraints while preserving architectural correctness.
+
+---
+
+## 4. Repository Organization
 
 ```
 .
@@ -66,88 +83,102 @@ While not feature-complete relative to large-scale production WANs (e.g., VRFs, 
 └── index.html
 ```
 
-### Directory Overview
+### 4.1 Components
 
 **.github/workflows/**
-GitHub Actions pipeline responsible for building and deploying site artifacts.
+Defines the GitHub Actions workflow used to build and deploy documentation artifacts.
 
 **assets/**
-Custom CSS styling and reusable header components injected into generated HTML output.
+Contains CSS and reusable HTML fragments injected into generated output.
 
 **diagrams/**
-Mermaid source diagrams describing the logical architecture.
+Contains Mermaid source files defining logical and architectural diagrams.
 
 **docs/**
-Primary LaTeX source for the lab documentation.
+Contains the primary LaTeX documentation source and generated artifacts.
 
 **index.html**
-Portfolio landing page for the published documentation.
+Defines the portfolio landing page for the published documentation.
 
 ---
 
-## Documentation Build and CI/CD Pipeline
+## 5. Documentation Build Pipeline
 
-This repository uses GitHub Actions to produce deterministic HTML and PDF artifacts on every push to `main`.
+### 5.1 Trigger Model
 
-### Build Steps
+The pipeline executes on pushes to the `main` branch.
 
-1. Checkout repository
-2. Install Pandoc and LaTeX dependencies
-3. Render Mermaid diagrams to PNG via Dockerized `mermaid-cli`
-4. Copy static assets
-5. Build HTML documentation from LaTeX source using Pandoc
-6. Build PDF documentation using `pdflatex`
-7. Assume AWS IAM role via OIDC
-8. Sync generated artifacts to S3
-9. Invalidate CloudFront cache
+### 5.2 Build Process
 
-### Artifact Generation
+The workflow performs the following operations:
 
-The pipeline produces:
+1. Checkout repository state
+2. Install Pandoc and LaTeX toolchain
+3. Render Mermaid diagrams using containerized `mermaid-cli`
+4. Copy static assets into the build directory
+5. Generate HTML output using Pandoc
+6. Generate PDF output using `pdflatex`
+7. Assume an AWS IAM role using OIDC federation
+8. Synchronize artifacts to Amazon S3
+9. Invalidate CloudFront caches
 
-* `dist/docs/aws-wireguard-bgp-wan.html`
-* `dist/docs/aws-wireguard-bgp-wan.pdf`
+### 5.3 Artifacts
+
+Generated artifacts include:
+
+* HTML documentation
+* PDF documentation
 * Rendered architecture diagrams
-* Static homepage assets
+* Static site assets
 
-Deployment target:
+### 5.4 Deployment
 
-* **Amazon S3** for static hosting
-* **CloudFront** for global distribution and cache control
+Artifacts are deployed to:
 
-Authentication is performed using GitHub OIDC and an AWS IAM role, eliminating the need for long-lived static credentials.
+* Amazon S3 for static hosting
+* CloudFront for content distribution and cache control
+
+Authentication uses GitHub OIDC with an AWS IAM role and does not rely on static credentials.
 
 ---
 
-## Published Documentation
+## 6. Published Outputs
 
-The generated documentation is publicly available:
-
-HTML:
+HTML
 [https://erschmitt.com/docs/aws-wireguard-bgp-wan.html](https://erschmitt.com/docs/aws-wireguard-bgp-wan.html)
 
-PDF:
+PDF
 [https://erschmitt.com/docs/aws-wireguard-bgp-wan.pdf](https://erschmitt.com/docs/aws-wireguard-bgp-wan.pdf)
 
 ---
 
-## Scope and Intent
+## 7. Exclusions
 
-This repository is intentionally documentation-focused.
+This repository does not include:
 
-It serves as:
+* Infrastructure-as-code templates
+* Instance configuration files
+* Automation scripts used for provisioning
 
-* A reproducible technical artifact
-* A formal architectural reference
-* A portfolio demonstration of network engineering design discipline
-* An example of CI/CD-driven documentation publishing
-
-Infrastructure provisioning code, instance configurations, and automation scripts are intentionally excluded.
+These elements are referenced by the documentation but intentionally excluded from source control.
 
 ---
 
-## Versioning
+## 8. Intended Use
 
-Current documented version: 1.3
+This repository serves as:
 
-Version history and metadata are maintained within the LaTeX source and rendered output.
+* A reproducible technical reference
+* A documentation artifact for WAN architecture design
+* A portfolio demonstration of network engineering methodology
+* An example of CI/CD-driven technical publishing
+
+It is not intended to function as a production deployment kit.
+
+---
+
+## 9. Versioning
+
+The current documented version is **1.3**.
+
+Version metadata is maintained within the LaTeX source and rendered outputs.
