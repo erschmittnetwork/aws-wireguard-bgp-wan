@@ -78,8 +78,8 @@ The objective is to model realistic SME operational constraints while preserving
 ├── diagrams
 │   └── logical-architecture.mmd
 ├── docs
-│   ├── aws-wireguard-bgp-wan.tex
-│   └── index.html
+│   └── aws-wireguard-bgp-wan.tex
+├── README.md
 └── index.html
 ```
 
@@ -89,13 +89,16 @@ The objective is to model realistic SME operational constraints while preserving
 Defines the GitHub Actions workflow used to build and deploy documentation artifacts.
 
 **assets/**
-Contains CSS and reusable HTML fragments injected into generated output.
+Contains CSS and a reusable HTML fragment injected into generated output.
 
 **diagrams/**
-Contains Mermaid source files defining logical and architectural diagrams.
+Contains the Mermaid source file defining the logical and architectural diagram.
 
 **docs/**
-Contains the primary LaTeX documentation source and generated artifacts.
+Contains the primary LaTeX documentation source from which artifacts are generated.
+
+**README.md**
+Provides an overview of the lab scope and CI/CD pipeline for document delivery.
 
 **index.html**
 Defines the portfolio landing page for the published documentation.
