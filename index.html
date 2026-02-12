@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Eric Schmitt | CCNA Network Engineering Portfolio</title>
+  <title>Eric Schmitt | Network Engineering Portfolio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Reuse document stylesheet -->
@@ -56,6 +56,14 @@
     .hero h1.name .initial {
       font-size: 1.25em;
       letter-spacing: 0.12em;
+    }
+
+    .certline {
+      margin: 4px 0 6px;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
     .subtitle {
@@ -176,47 +184,43 @@
         <span class="initial">E</span>RIC
         <span class="initial">S</span>CHMITT
       </h1>
-      <p class="subtitle">CCNA Network Engineering Portfolio</p>
+      <p class="certline">Cisco Certified Network Associate (CCNA)</p>
+      <p class="subtitle">Network Engineering Portfolio</p>
 
       <div class="hero-divider"></div>
 
       <div class="project-focus">
-        <span>Flagship Project:</span>
+        <span>Featured Lab Project:</span>
         <strong>AWS WireGuard BGP WAN with Automated HA Hub Failover</strong>
       </div>
     </header>
 
     <section>
       <div class="row">
-        <div class="label">Project Focus</div>
+        <div class="label">Project Description</div>
         <div class="content">
-          This project implements an AWS-hosted hub-and-spoke WAN using WireGuard for encrypted
-          transport, FRRouting (BGP) for dynamic routing, and automated failover orchestration.
+          Technical documentation of an AWS-hosted hub-and-spoke WAN lab using WireGuard for encrypted overlay transport, FRRouting (BGP) for dynamic routing control, and AWS-native automation for active/standby hub failover.
         </div>
       </div>
 
       <div class="row">
         <div class="label">Architecture Principles</div>
         <div class="content">
-          The lab models enterprise WAN design: deterministic BGP routing, encrypted transport,
-          automated failure handling, and operational observability under realistic SME constraints.
+          Models enterprise WAN behavior: deterministic BGP path selection, encrypted overlays, automated failure handling, and operational observability under realistic SME constraints.
         </div>
       </div>
 
       <div class="row">
         <div class="label">Technical Outcome</div>
         <div class="content">
-          Two AWS hub nodes and multiple remote spokes provide WireGuard-encrypted WAN connectivity,
-          dynamic BGP routing, and automated hub failover without proprietary SD-WAN platforms.
+          Two AWS EC2 hub nodes and multiple local VM spokes provide WireGuard-secured connectivity, dynamic route propagation, and automated hub failover without proprietary SD-WAN control planes.
         </div>
       </div>
 
       <div class="row">
         <div class="label">Delivery Pipeline</div>
         <div class="content">
-          Source documentation and diagrams are version-controlled in GitHub. CI/CD workflows render
-          Mermaid diagrams, build HTML/PDF artifacts with Pandoc, and deploy via S3 and CloudFront for
-          deterministic, repeatable delivery.
+          Source documentation and diagrams are version-controlled in GitHub. CI/CD renders Mermaid diagrams, builds HTML/PDF artifacts with Pandoc, and publishes via S3 and CloudFront for deterministic delivery.
         </div>
       </div>
     </section>
