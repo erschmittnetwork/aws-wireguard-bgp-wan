@@ -3827,7 +3827,7 @@ In addition, BGP was selected as an intentional design choice to reflect product
 % covered by AllowedIPs, traffic will be rejected prior to encryption,
 % even when kernel routing appears correct.
 %
-% DESIGN IMPLICATION:
+% Design Implication:
 %   Cryptographic prefix ownership must be validated before evaluating
 %   routing protocol correctness. Overlay routing cannot compensate for
 %   incomplete or overlapping AllowedIPs definitions.
@@ -3893,7 +3893,7 @@ This behavior demonstrates that, in this lab, \texttt{AllowedIPs} functions simu
 % Absent VRF isolation, policy-based routing, or fwmark-based table
 % separation, deterministic multipath behavior could not be achieved.
 %
-% DESIGN OUTCOME:
+% Design Outcome:
 %   Active/standby failover was selected to preserve deterministic
 %   prefix ownership and predictable operational behavior.
 % -----------------------------------------------------------------------------
