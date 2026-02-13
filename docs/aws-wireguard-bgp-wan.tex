@@ -11,10 +11,10 @@
 %   - Hyperref used for internal cross-referencing and PDF metadata behavior.
 %
 % Commenting Philosophy:
-%   - Comments are reserved for contextualizing normative claims, design
-%     choices, change sensitivities, and verbatim data output.
-%   - Content sections are intentionally self-explanatory and not redundantly
-%     documented inline.
+%   - Comment blocks contextualize normative requirements, architectural
+%     intent, change sensitivity, and verbatim operational evidence.
+%   - Comment blocks may be intentionally omitted for self-contained or
+%     mechanically descriptive subsections.
 % =============================================================================
 
 % -----------------------------------------------------------------------------
@@ -2724,8 +2724,16 @@ Two mechanisms are used in tandem:
 \end{enumerate}
 
 % -----------------------------------------------------------------------------
-% Redaction Note:
-%   Private IDs and public IP endpoints are intentionally redacted.
+% 6.4.2 AWS RESOURCES AND IDENTIFIERS
+%
+% Enumerates AWS resources that implement the HA control plane.
+%
+% Purpose:
+%   - Establish traceability between documented design and deployed
+%     infrastructure objects.
+%   - Provide reproducibility guidance for equivalent lab environments.
+%
+% Sensitive identifiers and public endpoints are intentionally redacted.
 % -----------------------------------------------------------------------------
 \subsubsection{6.4.2 AWS Resources and Identifiers (Lab-Specific)}
 
@@ -2891,14 +2899,15 @@ EIP-Failback-DC1 (code)
 % -----------------------------------------------------------------------------
 % 6.4.6 AUTOMATION EVIDENCE (CLOUDWATCH LOGS)
 %
-% CloudWatch Logs excerpts demonstrating:
-%   - Failover EIP dissociation from DC1-SP1 and
-%     reassociation with DC1-SP2.
-%   - Failback EIP dissociation from DC1-SP2 and
-%     reassociation with DC1-SP1.
+% Provides operational evidence of EIP reassociation during failover
+% and failback events.
 %
-% Redaction Note:
-%   Private IDs and public IP endpoints are intentionally redacted.
+% Log excerpts demonstrate:
+%   - Deterministic EIP ownership transitions.
+%   - Idempotent Lambda behavior (no-op when desired state satisfied).
+%   - Successful execution of disassociate/associate API calls.
+%
+% Identifiers and public endpoints are intentionally redacted.
 % -----------------------------------------------------------------------------
 \subsubsection{6.4.6 Automation Evidence (CloudWatch Logs)}
 
