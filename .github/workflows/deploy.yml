@@ -14,12 +14,16 @@
 
 name: Deploy static resources to S3
 
+# ----------------------------------------------------------
 # Trigger workflow on commits to the main branch
+# ----------------------------------------------------------
 on:
   push:
     branches: [ "main" ]
 
+# ----------------------------------------------------------
 # Minimal permissions required for OIDC + repo checkout
+# ----------------------------------------------------------
 permissions:
   id-token: write     # Required for AWS OIDC role assumption
   contents: read     # Required for repository checkout
@@ -69,7 +73,9 @@ jobs:
           #   -o pipefail : propagate pipe failures
           set -euo pipefail
 
+          # ----------------------------------------------------------
           # Recreate output directory
+          # ----------------------------------------------------------
           rm -rf dist
           mkdir -p dist/docs/diagrams dist/docs/assets
 
@@ -101,7 +107,7 @@ jobs:
           fi
 
           # ----------------------------------------------------------
-          # Copy static assets (CSS, headers, etc.)
+          # Copy static assets (doc.css + header.html)
           # ----------------------------------------------------------
           if [ -d assets ]; then
             cp -R assets/* dist/docs/assets/ || true
