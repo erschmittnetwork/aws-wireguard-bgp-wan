@@ -9,6 +9,12 @@
 % Build Notes:
 %   - Compiled via standard LaTeX toolchain (Pandoc/pdflatex).
 %   - Hyperref used for internal cross-referencing and PDF metadata behavior.
+%
+% Commenting Philosophy:
+%   - Comments are relegated to contextualizing normative claims, design
+%     choices, change sensitivities, and verbatim data output.
+%   - Content sections are intentionally self-explanatory and not redundantly
+%     documented inline.
 % =============================================================================
 
 % -----------------------------------------------------------------------------
@@ -16,6 +22,7 @@
 % -----------------------------------------------------------------------------
 % Standard article class selected for portability and predictable layout.
 % 11pt provides professional readability without excess pagination.
+% -----------------------------------------------------------------------------
 \documentclass[11pt]{article}
 
 % -----------------------------------------------------------------------------
@@ -27,6 +34,7 @@
 %   - Clean PDF open behavior (FitH view)
 %
 % No custom link coloring applied to preserve formal documentation tone.
+% -----------------------------------------------------------------------------
 \usepackage{hyperref}
 
 \hypersetup{
@@ -39,6 +47,7 @@
 % -----------------------------------------------------------------------------
 % Title and versioning intentionally reflect production-style document control.
 % Copyright statement embedded in author field for formal presentation.
+% -----------------------------------------------------------------------------
 \title{AWS WireGuard BGP WAN with Automated HA Hub Failover}
 \subtitle{Version 1.3}
 \author{© 2026 Eric Schmitt. All rights reserved.}
@@ -452,7 +461,7 @@ The source-of-truth for this diagram is maintained in Mermaid format under
 HTML and PDF outputs are consistent and deterministic.
 \end{quote}
 
-% ---------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
 % FIGURE: LOGICAL ARCHITECTURE
 %
 % Source of truth:
@@ -470,7 +479,7 @@ HTML and PDF outputs are consistent and deterministic.
 %   If directory structure changes, update both:
 %     1. CI/CD render path
 %     2. \includegraphics path below
-% ---------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\linewidth]{diagrams/logical-architecture.png}
@@ -628,8 +637,8 @@ This model provides:
 
 Each hub--spoke tunnel uses a dedicated /30 transit subnet:
 
-% ---------------------------------------------------------------------------
-% UNDERLAY ADDRESSING TABLE
+% -----------------------------------------------------------------------------
+% NOTE: UNDERLAY ADDRESSING TABLE
 %
 % Each hub instance is configured identically with these interface addresses.
 % Only one hub is reachable at a time due to Elastic IP association.
@@ -637,7 +646,7 @@ Each hub--spoke tunnel uses a dedicated /30 transit subnet:
 % Design Note:
 %   Duplicate addressing across hubs is intentional and required to preserve
 %   deterministic failover without modifying spoke configuration.
-% ---------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
@@ -652,8 +661,8 @@ SITE3-LF1 & 10.100.3.1/30 & 10.100.3.2/30 \\
 
 Both hub instances use identical interface IP addressing. At any given time, only the hub associated with the Elastic IP is reachable.
 
-% ---------------------------------------------------------------------------
-% CRYPTOGRAPHIC IDENTITY STRATEGY
+% -----------------------------------------------------------------------------
+% 5.3.3 CRYPTOGRAPHIC IDENTITY MODEL
 %
 % Both hubs intentionally share the same WireGuard keypair to represent a
 % single logical cryptographic endpoint. This is required to maintain tunnel
@@ -663,7 +672,7 @@ Both hub instances use identical interface IP addressing. At any given time, onl
 %   Key reuse across hosts is normally discouraged, but in this design the
 %   hubs represent a single logical service identity rather than independent
 %   peers.
-% ---------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
 \subsubsection{5.3.3 Cryptographic Identity Model}
 \label{sec:wg-crypto-identity}
 
@@ -688,6 +697,20 @@ All hub and spoke configurations use:
 
 This setting maintains NAT bindings for spoke nodes and accelerates failure detection without excessive control-plane traffic.
 
+% -----------------------------------------------------------------------------
+% 5.3.5 WIREGUARD CONFIGURATION ARTIFACTS
+%
+% Normative Implementation:
+%   The following configurations represent the canonical underlay
+%   transport configuration used in this deployment.
+%
+% Symmetry Requirement:
+%   Hub configurations (DC1-SP1 and DC1-SP2) are intentionally identical.
+%   Any divergence will break deterministic failover behavior.
+%
+% Redaction Note:
+%   Private keys and public IP endpoints are intentionally redacted.
+% -----------------------------------------------------------------------------
 \subsubsection{5.3.5 WireGuard Configuration Artifacts}
 \label{sec:wg-config-artifacts}
 
@@ -824,6 +847,21 @@ Each node advertises a single /32 loopback address into BGP:
 
 Both hubs advertise the same hub loopback. This is safe in this design because only one hub is reachable via the Elastic IP at any time.
 
+% -----------------------------------------------------------------------------
+% 5.4.3 FRROUTING CONFIGURATION ARTIFACTS
+%
+% Normative Control-Plane Definition:
+%   These BGP configurations define the complete overlay routing model.
+%
+% Determinism Constraint:
+%   Hub instances MUST remain configuration-identical, including:
+%     - AS number
+%     - Router ID
+%     - Advertised networks
+%
+% Policy Model:
+%   No route-maps or policy filters are implemented in this lab by design.
+% -----------------------------------------------------------------------------
 \subsubsection{5.4.3 FRRouting Configuration Artifacts}
 \label{sec:bgp-config-artifacts}
 
@@ -845,6 +883,14 @@ router bgp 65000
  exit-address-family
 \end{verbatim}
 
+% -----------------------------------------------------------------------------
+% NOTE:
+%   DC1-SP2 intentionally uses the same router-id and AS configuration
+%   as DC1-SP1. Because only one hub is reachable via the Elastic IP at
+%   any given time, no BGP collision occurs.
+%
+%   This design treats both instances as a single logical router.
+% -----------------------------------------------------------------------------
 \paragraph{Hub BGP configuration (DC1-SP2)}
 
 DC1-SP2 uses a BGP configuration that is completely identical to DC1-SP1, including router ID and AS number.
@@ -908,6 +954,17 @@ Spoke-to-spoke traffic follows the path:
 
 No direct spoke-to-spoke tunnels exist.
 
+% -----------------------------------------------------------------------------
+% 5.6 HIGH AVAILABILITY DESIGN
+%
+% Availability Model:
+%   High availability is achieved through cloud-level identity reassignment
+%   (Elastic IP movement) rather than protocol-level redundancy (e.g., ECMP).
+%
+% Architectural Intent:
+%   Routing protocols remain unaware of redundancy mechanics.
+%   Failover is externalized to the infrastructure layer.
+% -----------------------------------------------------------------------------
 \subsection{5.6 High Availability Design}
 \label{sec:ha-design}
 
@@ -939,6 +996,17 @@ Failover and failback are driven by:
 
 Both invoke Lambda functions responsible for EIP reassociation.
 
+% -----------------------------------------------------------------------------
+% 5.7 SECURITY DESIGN CONSIDERATIONS
+%
+% Scope Clarification:
+%   Security controls are limited to transport encryption and basic
+%   network-level access restriction.
+%
+% Explicit Exclusion:
+%   Automated key rotation, centralized PKI integration, and host
+%   hardening baselines are outside the scope of this lab.
+% -----------------------------------------------------------------------------
 \subsection{5.7 Security Design Considerations}
 \label{sec:security-design}
 
@@ -957,6 +1025,14 @@ Host firewalls are kept permissive in this lab to avoid interfering with routing
 
 WireGuard provides transport-layer encryption. Key rotation is manual and explicitly out of scope.
 
+% -----------------------------------------------------------------------------
+% 5.8 DESIGN LIMITATIONS
+%
+% This subsection explicitly documents architectural constraints and
+% non-goals to prevent overextension of the reference implementation.
+%
+% These constraints are architectural decisions, not defects..
+% -----------------------------------------------------------------------------
 \subsection{5.8 Design Limitations}
 \label{sec:design-limitations}
 
@@ -978,9 +1054,47 @@ The design described in this section is validated in:
 
 All observed behavior matches the intended design outcomes.
 
+% =============================================================================
+% SECTION 6: VALIDATION & TESTING
+%
+% Purpose:
+%   Provides empirical verification of the implemented architecture,
+%   including underlay integrity, overlay convergence, and failover behavior.
+%
+% Architectural Role:
+%   Demonstrates that the normative design defined in Section 5 operates
+%   deterministically under steady-state and transition conditions.
+%   All validation artifacts are derived from live system output.
+%
+% Validation Scope:
+%   - WireGuard underlay state and peer health
+%   - Routing table correctness
+%   - BGP-learned prefix installation
+%   - Behavioral consistency during hub role transitions
+%
+% Change Sensitivity:
+%   Any modification to addressing, AllowedIPs definitions, BGP policy,
+%   or HA automation may invalidate the validation evidence captured here.
+%   Re-run all verification steps after altering design elements.
+% =============================================================================
 \section{6. Validation \& Testing}
 \label{sec:validation-testing}
 
+% -----------------------------------------------------------------------------
+% 6.1 WIREGUARD UNDERLAY VALIDATION
+%
+% This subsection validates the encrypted transport plane independent
+% of overlay routing semantics.
+%
+% Verification Criteria:
+%   - All WireGuard interfaces are operational (UP/LOWER_UP).
+%   - Each hub maintains one interface per spoke.
+%   - Each spoke maintains a single interface toward the active hub EIP.
+%   - No static overlay routes are present in the underlay context.
+%
+% Underlay validation must succeed prior to evaluating BGP convergence
+% or overlay reachability.
+% -----------------------------------------------------------------------------
 \subsection{6.1 WireGuard Underlay Validation}
 \label{sec:wg-underlay-validation}
 
@@ -993,6 +1107,22 @@ This section validates the encrypted underlay between the AWS hub instances (DC1
   \item Confirm that underlay routes are correctly installed and that no static overlay routes are present.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.1.1 HUB UNDERLAY INTERFACES
+%
+% Both hubs are expected to present identical underlay interface
+% topology and addressing. Only Elastic IP ownership determines
+% active versus standby state.
+%
+% Validation confirms:
+%   - Three point-to-point interfaces per hub (wg0, wg1, wg2).
+%   - Correct /30 addressing per site.
+%   - Peer AllowedIPs match per-site loopback ownership.
+%   - Interface and routing state remain consistent during hub transition.
+%
+% Behavioral parity between hubs is a prerequisite for deterministic
+% failover.
+% -----------------------------------------------------------------------------
 \subsubsection{6.1.1 Hub Underlay Interfaces}
 \label{sec:hub-underlay-interfaces}
 
@@ -1175,6 +1305,21 @@ default via 172.31.64.1 dev ens5 proto dhcp src 172.31.67.250 metric 100
 172.31.64.1 dev ens5 proto dhcp scope link src 172.31.67.250 metric 100
 \end{verbatim}
 
+% -----------------------------------------------------------------------------
+% 6.1.2 SPOKE UNDERLAY INTERFACES
+%
+% Spokes are intentionally single-homed at the underlay layer.
+% Each spoke maintains exactly one WireGuard interface toward the
+% hub group via the shared Elastic IP.
+%
+% Validation confirms:
+%   - Correct /30 addressing per spoke.
+%   - AllowedIPs include full overlay prefix space.
+%   - Overlay prefixes are learned via BGP, not statically defined.
+%
+% This enforces simplicity at the edge and removes hub-selection logic
+% from spoke configuration.
+% -----------------------------------------------------------------------------
 \subsubsection{6.1.2 Spoke Underlay Interfaces}
 \label{sec:spoke-underlay-interfaces}
 
@@ -1316,6 +1461,18 @@ default via 192.168.195.2 dev ens33
 192.168.195.0/24 dev ens33 proto kernel scope link src 192.168.195.134
 \end{verbatim}
 
+% -----------------------------------------------------------------------------
+% 6.1.3 UNDERLAY VALIDATION SUMMARY
+%
+% The encrypted transport layer is confirmed to be:
+%   - Fully established across all sites.
+%   - Consistent between active and standby hubs.
+%   - Free of unintended static overlay routes.
+%
+% Successful underlay validation establishes the foundation required
+% for overlay routing and failover behavior analysis in subsequent
+% subsections.
+% -----------------------------------------------------------------------------
 \subsubsection{6.1.3 Underlay Validation Summary}
 \label{sec:underlay-validation-summary}
 
@@ -1327,6 +1484,21 @@ default via 192.168.195.2 dev ens33
   \item Underlay behavior is identical during hub failover.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.2 BGP OVERLAY VALIDATION
+%
+% This subsection validates control-plane operation of the eBGP overlay
+% transported across the WireGuard underlay.
+%
+% Validation confirms:
+%   - One eBGP adjacency per spoke toward 10.100.X.1.
+%   - Hub instances learn all spoke loopbacks.
+%   - Spokes learn all remote site loopbacks via the hub.
+%   - Overlay reachability is sourced exclusively from BGP.
+%
+% These checks verify that inter-site routing behavior aligns with the
+% architectural model validated in Section 6.1.
+% -----------------------------------------------------------------------------
 \subsection{6.2 BGP Overlay Validation}
 \label{sec:bgp-overlay-validation}
 
@@ -1339,6 +1511,22 @@ This section validates the BGP overlay used to carry site loopback reachability 
   \item Verify that overlay reachability is learned via BGP and that no static overlay routing configuration exists.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.2.1 HUB BGP VIEW -- DC1-SP1 (ACTIVE)
+%
+% This subsection validates hub control-plane behavior while the instance
+% is holding the Elastic IP and serving as active overlay transit node.
+%
+% Verification Criteria:
+%   - Exactly one eBGP session per spoke.
+%   - One prefix received from each spoke (/32 loopback).
+%   - Hub loopback locally originated.
+%   - All spoke loopbacks present in BGP RIB.
+%   - eBGP administrative distance (20) observed in FRR route view.
+%
+% The hub must function strictly as transit AS 65000 with no unintended
+% route reflection or iBGP semantics.
+% -----------------------------------------------------------------------------
 \subsubsection{6.2.1 Hub BGP View -- DC1-SP1 (Active)}
 \label{sec:bgp-overlay-hub-dc1-sp1}
 
@@ -1425,6 +1613,24 @@ B   172.16.3.1/32 [20/0] via 10.100.3.2, wg2, weight 1, 00:01:05
 
 This output confirms that all spoke loopbacks are present in FRR’s BGP RIB with eBGP administrative distance. As shown in Section~\ref{sec:wg-underlay-validation}, the hub kernel routing table may also contain routes to these prefixes via WireGuard \texttt{AllowedIPs}; therefore, kernel route entries alone are not used here to attribute route origin.
 
+% -----------------------------------------------------------------------------
+% 6.2.2 HUB BGP VIEW -- DC1-SP2 (STANDBY)
+%
+% Validates control-plane equivalence of the standby hub instance.
+%
+% Architectural Requirement:
+%   Both hubs operate with identical BGP configuration, router ID,
+%   and AS number. Elastic IP ownership determines forwarding role,
+%   not routing configuration.
+%
+% Verification Criteria:
+%   - Same number of neighbors as active hub.
+%   - Identical prefix inventory in BGP RIB.
+%   - Identical next-hop resolution semantics.
+%
+% Control-plane symmetry ensures failover does not require routing
+% reconvergence beyond session re-establishment.
+% -----------------------------------------------------------------------------
 \subsubsection{6.2.2 Hub BGP View -- DC1-SP2 (Standby)}
 \label{sec:bgp-overlay-hub-dc1-sp2}
 
@@ -1492,6 +1698,22 @@ B   172.16.3.1/32 [20/0] via 10.100.3.2, wg2, weight 1, 00:57:24
 
 DC1-SP2’s BGP control-plane view is identical to DC1-SP1’s, ensuring that hub failover does not require any routing changes on the spokes.
 
+% -----------------------------------------------------------------------------
+% 6.2.3 SPOKE BGP VIEW -- SITE1-LF1
+%
+% Validates spoke overlay behavior with single-homed eBGP adjacency
+% toward the hub group.
+%
+% Verification Criteria:
+%   - Exactly one neighbor in AS 65000.
+%   - Hub loopback learned via eBGP.
+%   - Remote site loopbacks learned with AS path:
+%         65000 6510X
+%   - Local loopback originated locally (weight 32768).
+%
+% Confirms hub-only transit model and absence of direct spoke-to-spoke
+% peering.
+% -----------------------------------------------------------------------------
 \subsubsection{6.2.3 Spoke BGP View -- SITE1-LF1}
 \label{sec:bgp-overlay-spoke-site1}
 
@@ -1548,6 +1770,19 @@ B>* 172.16.3.1/32 [20/0] via 10.100.1.1, wg0, weight 1, 00:06:28
 
 On the spokes, overlay routes are installed in the kernel routing table as \texttt{proto bgp}, as shown in Section~\ref{sec:wg-underlay-validation}.
 
+% -----------------------------------------------------------------------------
+% 6.2.4 SPOKE BGP VIEW -- SITE2-LF1
+%
+% Confirms identical single-homed overlay behavior for SITE2-LF1.
+%
+% Validation ensures:
+%   - One eBGP session toward hub.
+%   - Hub loopback and remote site loopbacks learned dynamically.
+%   - No alternate transit paths.
+%
+% Behavioral uniformity across spokes is required for deterministic
+% scaling characteristics.
+% -----------------------------------------------------------------------------
 \subsubsection{6.2.4 Spoke BGP View -- SITE2-LF1}
 \label{sec:bgp-overlay-spoke-site2}
 
@@ -1602,6 +1837,19 @@ B>* 172.16.1.1/32 [20/0] via 10.100.2.1, wg0, weight 1, 00:07:17
 B>* 172.16.3.1/32 [20/0] via 10.100.2.1, wg0, weight 1, 00:07:15
 \end{verbatim}
 
+% -----------------------------------------------------------------------------
+% 6.2.5 SPOKE BGP VIEW -- SITE3-LF1
+%
+% Final spoke validation confirming consistent overlay semantics
+% across all sites.
+%
+% Expected State:
+%   - Single neighbor in AS 65000.
+%   - Three remote loopbacks learned via hub.
+%   - Local loopback originated locally.
+%
+% Confirms full overlay mesh reachability via centralized transit model.
+% -----------------------------------------------------------------------------
 \subsubsection{6.2.5 Spoke BGP View -- SITE3-LF1}
 \label{sec:bgp-overlay-spoke-site3}
 
@@ -1656,6 +1904,19 @@ B>* 172.16.1.1/32 [20/0] via 10.100.3.1, wg0, weight 1, 00:07:56
 B>* 172.16.2.1/32 [20/0] via 10.100.3.1, wg0, weight 1, 00:07:56
 \end{verbatim}
 
+% -----------------------------------------------------------------------------
+% 6.2.6 BGP OVERLAY VALIDATION SUMMARY
+%
+% Combined hub and spoke outputs confirm:
+%
+%   - Full loopback reachability across all nodes.
+%   - Exactly one eBGP adjacency per spoke.
+%   - Hub AS 65000 functions as sole transit domain.
+%   - Identical control-plane state across hub instances.
+%
+% The overlay operates strictly as a hub-and-spoke transit topology.
+% No lateral spoke adjacency exists.
+% -----------------------------------------------------------------------------
 \subsubsection{6.2.6 BGP Overlay Validation Summary}
 \label{sec:bgp-overlay-validation-summary}
 
@@ -1678,6 +1939,23 @@ From the combined hub and spoke views:
         On spokes, all 172.16.X.1/32 routes are installed as \texttt{proto bgp} (Section~\ref{sec:wg-underlay-validation}); on hubs, BGP learning is validated via FRR RIB inspection.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.2.7 STATIC OVERLAY ROUTE VERIFICATION
+%
+% Explicit validation that no static routing constructs influence
+% overlay reachability.
+%
+% Verification Scope:
+%   - Kernel static route inspection.
+%   - FRR staticd absence.
+%   - Running configuration review.
+%
+% Result:
+%   All 172.16.X.1/32 prefixes are sourced exclusively from BGP.
+%
+% This confirms dynamic control-plane dependency and eliminates
+% configuration drift risk from static entries.
+% -----------------------------------------------------------------------------
 \subsubsection{6.2.7 Static Overlay Route Verification}
 \label{sec:bgp-overlay-no-static}
 
@@ -1694,11 +1972,42 @@ These results confirm that no kernel-level or FRRouting static routes are config
 
 This confirms that the BGP overlay behaves as intended and aligns with the underlay validation results presented in Section~\ref{sec:wg-underlay-validation}.
 
+% -----------------------------------------------------------------------------
+% 6.3 CONNECTIVITY VALIDATION AND FAILOVER VERIFICATION
+%
+% This subsection validates end-to-end Layer 3 forwarding behavior
+% across steady-state, failover, and failback conditions.
+%
+% Validation confirms:
+%   - Full inter-site reachability under normal operation.
+%   - Correct hub-and-spoke forwarding paths.
+%   - Bounded packet loss during active failover.
+%   - Restoration of steady-state behavior after EIP reassociation.
+%
+% Testing methodology:
+%   - ICMP echo for reachability and loss measurement.
+%   - Traceroute for hop-by-hop path verification.
+%
+% Results are derived from live system output and reproduced verbatim.
+% -----------------------------------------------------------------------------
 \subsection{6.3 Connectivity Validation and Failover Verification}
 \label{sec:connectivity-validation}
 
 This section documents end-to-end Layer 3 connectivity validation between all participating sites and the data center prior to failover, during failover, and after failback. Validation is performed using ICMP echo requests and traceroute path inspection originating from each site Linux forwarding instance (LF1). All outputs below are captured directly from the test systems and are reproduced verbatim.
 
+% -----------------------------------------------------------------------------
+% 6.3.1 PRE-FAILOVER CONNECTIVITY VALIDATION
+%
+% Establishes steady-state baseline prior to initiating hub failover.
+%
+% Verification Scope:
+%   - Hub loopback reachability from all spokes.
+%   - Full spoke-to-spoke reachability via hub transit.
+%   - Zero packet loss under normal operating conditions.
+%
+% Baseline measurements are used for comparison against failover
+% and post-failback behavior.
+% -----------------------------------------------------------------------------
 \subsubsection{6.3.1 Pre-Failover Connectivity Validation}
 \label{sec:pre-failover-validation}
 
@@ -1826,6 +2135,18 @@ Observations:
         indicating stable hub availability and correct EIP association to DC1-SP1.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.3.2 PRE-FAILOVER TRACEROUTE VALIDATION
+%
+% Validates hop-by-hop forwarding paths under steady-state operation.
+%
+% Expected Topology Behavior:
+%   - Spoke-to-hub traffic: single hop.
+%   - Spoke-to-spoke traffic: two hops via hub underlay IP.
+%
+% Confirms hub-and-spoke transit model and absence of alternate
+% or asymmetric forwarding paths.
+% -----------------------------------------------------------------------------
 \subsubsection{6.3.2 Pre-Failover Traceroute Validation}
 \label{sec:pre-failover-traceroute}
 
@@ -1908,6 +2229,24 @@ Observations:
   \item No evidence of asymmetric routing or unintended path selection is observed.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.3.3 ACTIVE FAILOVER ICMP VALIDATION
+%
+% Observes connectivity behavior during active hub transition.
+%
+% Verification Focus:
+%   - Packet loss window during Elastic IP reassociation.
+%   - Forwarding interruption duration.
+%   - Post-transition latency normalization.
+%
+% Failover event sequence:
+%   1. Active hub instance termination.
+%   2. EventBridge detection of state change.
+%   3. Lambda-triggered Elastic IP reassignment.
+%
+% Successful validation requires bounded loss and automatic
+% restoration of steady-state connectivity.
+% -----------------------------------------------------------------------------
 \subsubsection{6.3.3 Active Failover ICMP Validation}
 \label{sec:active-failover-validation}
 
@@ -1972,6 +2311,24 @@ Observations:
         steady-state characteristics consistent with pre-failover behavior.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.3.4 FAILBACK ICMP VALIDATION
+%
+% Observes connectivity behavior during restoration of the primary hub.
+%
+% Verification Focus:
+%   - Packet loss window during reverse Elastic IP reassociation.
+%   - Boot-to-service restoration timing.
+%   - Post-transition latency normalization.
+%
+% Failback event sequence:
+%   1. Primary hub instance boot completion.
+%   2. EventBridge detection of running state.
+%   3. Lambda-triggered Elastic IP reassignment to primary hub.
+%
+% Successful validation requires bounded loss and restoration of
+% baseline steady-state forwarding characteristics.
+% -----------------------------------------------------------------------------
 \subsubsection{6.3.4 Failback ICMP Validation}
 \label{sec:failback-validation}
 
@@ -2053,6 +2410,20 @@ Observations:
         original DC1-SP1-active baseline.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.3.5 POST-FAILOVER STEADY-STATE VALIDATION
+%
+% Revalidates full connectivity after standby hub assumes active role.
+%
+% Verification Scope:
+%   - Hub loopback reachability from all spokes.
+%   - Full spoke-to-spoke reachability via hub transit.
+%   - Zero packet loss under steady-state conditions.
+%   - Forwarding path consistency with pre-failover topology.
+%
+% Confirms that failover does not alter overlay routing behavior
+% or forwarding semantics.
+% -----------------------------------------------------------------------------
 \subsubsection{6.3.5 Post-Failover Steady-State Connectivity Validation}
 \label{sec:post-failover-validation}
 
@@ -2277,6 +2648,19 @@ Observations:
         with no requirement for session resets or configuration changes.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.3.6 END-TO-END CONNECTIVITY VALIDATION SUMMARY
+%
+% Combined steady-state and transition testing confirms:
+%
+%   - Full hub–spoke and spoke–spoke reachability in all active states.
+%   - Automatic Elastic IP reassociation without spoke reconfiguration.
+%   - Bounded packet loss during hub transitions.
+%   - Restoration of baseline latency and forwarding paths after events.
+%
+% Validation demonstrates that high-availability objectives are met
+% while preserving overlay stability and operational simplicity.
+% -----------------------------------------------------------------------------
 \subsubsection{6.3.6 End-to-End Connectivity Validation Summary}
 
 Across all pre-failover, failover, and failback test cases, the following end-to-end behavior is confirmed:
@@ -2294,6 +2678,21 @@ Across all pre-failover, failover, and failback test cases, the following end-to
         overlay stability and operational simplicity at the spoke sites.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.4 HIGH-AVAILABILITY AUTOMATION (AWS)
+%
+% This subsection documents the control-plane automation responsible for
+% active/standby hub role management.
+%
+% Architectural Intent:
+%   - Present a single stable public endpoint (Elastic IP).
+%   - Reassign that endpoint automatically based on hub lifecycle
+%     state and health.
+%   - Preserve static spoke configuration across hub transitions.
+%
+% Automation scope is limited to AWS-native services; no routing or
+% configuration changes occur on spoke systems during failover.
+% -----------------------------------------------------------------------------
 \subsection{6.4 High-Availability Automation (AWS)}
 \label{sec:ha-automation-aws}
 
@@ -2324,6 +2723,10 @@ Two mechanisms are used in tandem:
   \item \textbf{CloudWatch alarm (contingency + telemetry)}: triggers failover if DC1-SP1 is running but unhealthy, and provides a native audit trail of health degradation.
 \end{enumerate}
 
+% -----------------------------------------------------------------------------
+% Redaction Note:
+%   Private IDs and public IP endpoints are intentionally redacted.
+% -----------------------------------------------------------------------------
 \subsubsection{6.4.2 AWS Resources and Identifiers (Lab-Specific)}
 
 \begin{itemize}
@@ -2344,6 +2747,18 @@ Two mechanisms are used in tandem:
   \item CloudWatch alarm: \texttt{DC1-SP1-StatusFailed-Alarm}
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.4.3 EVENTBRIDGE-DRIVEN FAILOVER AND FAILBACK
+%
+% Defines deterministic EIP ownership based on primary hub lifecycle state.
+%
+% Preference Model:
+%   - DC1-SP1 running  -> DC1-SP1 holds EIP.
+%   - DC1-SP1 stopped  -> DC1-SP2 holds EIP.
+%
+% EventBridge rules provide state-driven, infrastructure-native
+% orchestration without dataplane awareness.
+% -----------------------------------------------------------------------------
 \subsubsection{6.4.3 EventBridge-Driven Failover and Failback}
 
 \paragraph{Failover trigger: DC1-SP1 stopping/stopped}
@@ -2383,6 +2798,19 @@ These two rules establish a deterministic preference model:
   \item If \textbf{DC1-SP1 is stopping or stopped}, \textbf{DC1-SP2 should hold the EIP} (failover behavior).
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.4.4 CLOUDWATCH HEALTH-BASED FAILOVER CONTINGENCY
+%
+% Extends lifecycle-based automation to cover the
+% "running but unhealthy" condition.
+%
+% Alarm-driven failover:
+%   - Triggers when instance-level status checks fail.
+%   - Invokes the same failover Lambda used for stoppage events.
+%
+% Failback remains exclusively lifecycle-driven to ensure the
+% preferred primary resumes control only after confirmed running state.
+% -----------------------------------------------------------------------------
 \subsubsection{6.4.4 CloudWatch Alarm as Health-Based Contingency (and Telemetry)}
 
 \paragraph{Problem addressed}
@@ -2419,6 +2847,19 @@ Failover-EIP-on-DC1-SP1-Alarm (Event Pattern)
 \paragraph{Scope limitation}
 CloudWatch-based automation is used for \textbf{failover only}. Failback remains \textbf{exclusive to EC2 running-state detection} so the environment returns to DC1-SP1 only when it is confirmed \texttt{running} again.
 
+% -----------------------------------------------------------------------------
+% 6.4.5 LAMBDA CONTROL LOGIC
+%
+% Documents idempotent EIP reassociation logic.
+%
+% Design Properties:
+%   - Safe no-op if desired state already satisfied.
+%   - Explicit disassociate before reassociate.
+%   - AllowReassociation enabled to ensure deterministic ownership.
+%
+% Lambda functions act purely at the infrastructure layer and do not
+% modify routing, WireGuard configuration, or BGP state.
+% -----------------------------------------------------------------------------
 \subsubsection{6.4.5 Lambda Functions (Failover and Failback)}
 
 The following blocks represent the logical control flow of each Lambda function. They are provided as pseudocode to document decision-making and AWS API interactions rather than as literal source code.
@@ -2447,6 +2888,18 @@ EIP-Failback-DC1 (code)
                     AllowReassociation=True)
 \end{verbatim}
 
+% -----------------------------------------------------------------------------
+% 6.4.6 AUTOMATION EVIDENCE (CLOUDWATCH LOGS)
+%
+% CloudWatch Logs excerpts demonstrating:
+%   - Failover EIP dissociation from DC1-SP1 and
+%     reassociation with DC1-SP2.
+%   - Failback EIP dissociation from DC1-SP2 and
+%     reassociation with DC1-SP1.
+%
+% Redaction Note:
+%   Private IDs and public IP endpoints are intentionally redacted.
+% -----------------------------------------------------------------------------
 \subsubsection{6.4.6 Automation Evidence (CloudWatch Logs)}
 
 \paragraph{Failover evidence (\texttt{EIP-Failover-DC1})}
@@ -2467,6 +2920,20 @@ Disassociating from <REDACTED>...
 Associating EIP <REDACTED> to PRIMARY <REDACTED>...
 \end{verbatim}
 
+% -----------------------------------------------------------------------------
+% 6.4.7 VALIDATION LINKAGE
+%
+% Correlates AWS automation behavior with dataplane observations
+% recorded in Section 6.3.
+%
+% Summary:
+%   - EIP reassociation produces bounded packet loss.
+%   - Connectivity resumes automatically.
+%   - Overlay target (172.16.0.1) remains constant.
+%
+% Establishes causal linkage between control-plane automation and
+% observed forwarding behavior.
+% -----------------------------------------------------------------------------
 \subsubsection{6.4.7 Validation Linkage}
 
 End-to-end validation of these automations is shown operationally in Section~\ref{sec:connectivity-validation} (continuous ping during failover and failback). In addition to dataplane continuity, Section~\ref{sec:connectivity-validation} demonstrates that:
@@ -2476,11 +2943,37 @@ End-to-end validation of these automations is shown operationally in Section~\re
   \item the hub loopback address (\texttt{172.16.0.1}) remains the stable overlay target across hub transitions.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.5 SECURITY VALIDATION
+%
+% This subsection validates the implemented security posture of the lab.
+%
+% Validation scope:
+%   - Public ingress restriction at AWS perimeter.
+%   - Encryption and authentication of WAN traffic.
+%   - Kernel and host configuration relevant to routed behavior.
+%
+% This is a proof-of-concept validation, not a production
+% hardening guide.
+% -----------------------------------------------------------------------------
 \subsection{6.5 Security Validation}
 \label{sec:security-validation}
 
 This section validates the security posture of the lab environment as implemented, with explicit attention to ingress control, host-level packet handling, and cryptographic properties of the WireGuard underlay. The intent is not to claim production hardening, but to demonstrate that all security-relevant components required for a realistic small-enterprise WAN proof of concept are present, understood, and correctly configured.
 
+% -----------------------------------------------------------------------------
+% 6.5.1 THREAT MODEL AND VALIDATION SCOPE
+%
+% Defines boundaries of security analysis.
+%
+% Included:
+%   - Ingress control.
+%   - Encryption and authentication.
+%   - Forwarding correctness without unintended filtering.
+%
+% Excluded:
+%   - Operational hardening (IDS/IPS, DDoS strategy, automated rotation).
+% -----------------------------------------------------------------------------
 \subsubsection{6.5.1 Threat Model and Scope}
 
 \paragraph{Scope of validation}
@@ -2499,6 +2992,18 @@ The following areas are explicitly out of scope for this lab:
   \item Host hardening beyond baseline Ubuntu defaults.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.5.2 AWS SECURITY GROUP CONTROLS
+%
+% Validates minimal exposure of hub instances.
+%
+% Design Properties:
+%   - SSH restricted to single trusted source.
+%   - WireGuard UDP restricted to expected peer source.
+%   - No broad Internet exposure.
+%
+% Security Groups provide the primary perimeter control layer.
+% -----------------------------------------------------------------------------
 \subsubsection{6.5.2 AWS Security Group Controls (Hub Ingress)}
 
 \paragraph{Security group intent}
@@ -2539,6 +3044,18 @@ No other inbound services are exposed.
 
 This aligns with the lab’s goal of realism without unnecessary complexity.
 
+% -----------------------------------------------------------------------------
+% 6.5.3 HOST FIREWALL CONFIGURATION
+%
+% Documents absence of host-level packet filtering.
+%
+% Rationale:
+%   - Eliminates ambiguity during routing and convergence validation.
+%   - Delegates ingress restriction to AWS perimeter controls.
+%
+% Production deployments would typically layer host firewalling
+% on top of this baseline.
+% -----------------------------------------------------------------------------
 \subsubsection{6.5.3 Host Firewall Configuration (Linux)}
 
 \paragraph{Observed configuration}
@@ -2569,6 +3086,17 @@ For a network-focused proof of concept:
 
 In a production deployment, host-based firewalling would typically be layered on top of this baseline.
 
+% -----------------------------------------------------------------------------
+% 6.5.4 IP FORWARDING CONFIGURATION
+%
+% Confirms kernel forwarding is enabled on hubs and spokes.
+%
+% Required for:
+%   - Hub transit behavior.
+%   - Spoke-to-spoke routed communication.
+%
+% Establishes routed WAN semantics rather than host-only tunneling.
+% -----------------------------------------------------------------------------
 \subsubsection{6.5.4 IP Forwarding and Packet Handling}
 
 \paragraph{Kernel forwarding state}
@@ -2591,6 +3119,19 @@ This setting is required for:
   \item Spoke-to-spoke communication via the hub.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 6.5.5 WIREGUARD CRYPTOGRAPHIC POSTURE
+%
+% Validates encryption and peer authentication model.
+%
+% Properties:
+%   - Modern cryptographic primitives.
+%   - Static key-based identity.
+%   - Encrypted WAN transport only.
+%
+% PersistentKeepalive supports NAT traversal and
+% failover responsiveness.
+% -----------------------------------------------------------------------------
 \subsubsection{6.5.5 WireGuard Cryptographic Posture}
 
 \paragraph{Encryption and authentication}
@@ -2626,6 +3167,18 @@ This setting is especially important given:
 \paragraph{Key rotation policy}
 Key rotation is manual and out of scope for this lab. This is explicitly documented to avoid implying operational maturity beyond the intended proof-of-concept scope.
 
+% -----------------------------------------------------------------------------
+% 6.5.6 SECURITY VALIDATION SUMMARY
+%
+% Confirms:
+%   - Encrypted WAN transport.
+%   - Restricted public exposure.
+%   - Correct forwarding behavior.
+%   - Explicit NAT and failover considerations.
+%
+% Establishes security posture appropriate for a
+% small-enterprise WAN proof of concept.
+% -----------------------------------------------------------------------------
 \subsubsection{6.5.6 Security Validation Summary}
 
 The following security properties are confirmed:
@@ -2644,11 +3197,33 @@ Taken together, these observations establish a security posture appropriate for:
   \item A foundation that could be incrementally hardened for production use.
 \end{itemize}
 
+% =============================================================================
+% SECTION 7: OPERATIONAL CONSIDERATIONS AND RUNBOOK
+%
+% Purpose:
+%   Defines steady-state expectations, validation procedures, and failover
+%   behavior for the deployed architecture.
+%
+% Scope:
+%   This section is operationally normative. Procedures described herein
+%   reflect expected behavior of a correctly implemented deployment.
+%
+% Audience:
+%   Operators, validation engineers, and maintainers.
+% =============================================================================
 \section{7. Operational Considerations and Runbook}
 \label{sec:operations-runbook}
 
 This section documents the expected operational behavior of the environment, along with a concise runbook intended for engineers responsible for operating, validating, or troubleshooting the deployment. While this lab is a proof of concept, the operational guidance reflects realistic enterprise practices and assumptions.
 
+% -----------------------------------------------------------------------------
+% 7.1 NORMAL OPERATIONAL STATE
+%
+% Defines the canonical steady-state baseline against which deviations
+% should be evaluated.
+%
+% Any divergence from this model requires investigation.
+% -----------------------------------------------------------------------------
 \subsection{7.1 Normal Operational State}
 \label{sec:normal-operational-state}
 
@@ -2694,6 +3269,16 @@ For planned maintenance:
 
 No spoke-side changes are required during planned hub maintenance.
 
+% -----------------------------------------------------------------------------
+% 7.3 MANUAL VALIDATION CHECKLIST
+%
+% These procedures provide deterministic verification of:
+%   - Underlay health (WireGuard)
+%   - Overlay convergence (BGP)
+%   - End-to-end forwarding behavior
+%
+% Commands are intentionally minimal and rely only on native tooling.
+% -----------------------------------------------------------------------------
 \subsection{7.3 Manual Validation Checklist}
 \label{sec:manual-validation-checklist}
 
@@ -2758,6 +3343,14 @@ Expected:
   \item TTL values reflect hub traversal for spoke-to-spoke traffic.
 \end{itemize}
 
+% -----------------------------------------------------------------------------
+% 7.4 FAILOVER OPERATIONS
+%
+% Describes expected behavior during hub role transitions.
+%
+% Failover and failback are infrastructure-driven events.
+% Routing protocols are not directly aware of redundancy mechanics.
+% -----------------------------------------------------------------------------
 \subsection{7.4 Failover Operations}
 \label{sec:failover-operations}
 
@@ -2797,6 +3390,19 @@ Failback is triggered exclusively by EventBridge when DC1-SP1 transitions to the
 
 CloudWatch alarms do not trigger failback, by design.
 
+% -----------------------------------------------------------------------------
+% 7.5 OBSERVABILITY AND LOGGING
+%
+% Establishes authoritative data sources for determining:
+%   - Active hub identity
+%   - Automation execution status
+%   - Convergence confirmation
+%
+% Operational precedence:
+%   1. EIP association state
+%   2. Lambda execution logs
+%   3. WireGuard/BGP status
+% -----------------------------------------------------------------------------
 \subsection{7.5 Observability and Logging}
 \label{sec:observability-logging}
 
@@ -2838,11 +3444,34 @@ This runbook demonstrates that the environment:
 
 The operational model aligns with enterprise expectations for a small-scale WAN with automated high availability.
 
+% =============================================================================
+% SECTION 8: DESIGN TRADE-OFFS AND LESSONS LEARNED
+%
+% Purpose:
+%   Documents architectural decisions, empirical constraints encountered,
+%   and intentional trade-offs made during implementation.
+%
+% Nature of Content:
+%   This section is analytical rather than normative. It explains why the
+%   final architecture was selected and what alternatives were rejected.
+%
+% Cross-Reference:
+%   Experimental findings referenced here are detailed in Appendix A.
+% =============================================================================
 \section{8. Design Trade-offs, Lessons Learned, and Future Enhancements}
 \label{sec:design-tradeoffs}
 
 This section documents key architectural trade-offs, behavioral constraints, and lessons learned during the design and implementation of the AWS WireGuard hub-and-spoke WAN. It consolidates observations from both the finalized production-oriented design and the exploratory constraints described in Appendix~A, with a focus on decisions that materially affected correctness, operability, and realism.
 
+% -----------------------------------------------------------------------------
+% 8.1 UNDERLAY VS OVERLAY SEPARATION
+%
+% Core architectural validation:
+%   WireGuard enforces transport-level cryptographic constraints that
+%   supersede routing protocol logic.
+%
+% This separation is a foundational outcome of the lab.
+% -----------------------------------------------------------------------------
 \subsection{8.1 Underlay vs. Overlay Separation}
 \label{subsec:underlay-overlay-separation}
 
@@ -2881,6 +3510,14 @@ The overlay is entirely dependent on underlay correctness. Valid BGP routes do n
 \subsection{8.2 Active/Standby vs. Active/Active Hub Design}
 \label{subsec:active-standby-vs-active-active}
 
+% -----------------------------------------------------------------------------
+% 8.2.1 ACTIVE/ACTIVE HUB ATTEMPT
+%
+% This subsection documents an experimental design that was rejected.
+% Failures observed were due to protocol properties, not misconfiguration.
+%
+% Included to preserve institutional knowledge and prevent rework.
+% -----------------------------------------------------------------------------
 \subsubsection{8.2.1 Active/Active Hub Attempt}
 \label{subsubsec:active-active-attempt}
 
@@ -2896,6 +3533,13 @@ This approach empirically encountered several non-obvious constraints:
 
 These issues are documented in detail in Appendix~A and are intrinsic to WireGuard’s security model rather than misconfiguration errors.
 
+% -----------------------------------------------------------------------------
+% 8.2.2 ACTIVE/STANDBY MODEL SELECTION
+%
+% Defines the final architectural decision adopted in Sections 4–7.
+%
+% Emphasizes determinism and cryptographic correctness over load-sharing.
+% -----------------------------------------------------------------------------
 \subsubsection{8.2.2 Active/Standby Hub Model Selection}
 \label{subsubsec:active-standby-selection}
 
@@ -2942,6 +3586,14 @@ BGP was selected due to:
 
 The choice also intentionally expanded the lab beyond entry-level routing protocols, reinforcing production-oriented design thinking.
 
+% -----------------------------------------------------------------------------
+% 8.4 BGP POLICY SIMPLIFICATION
+%
+% Explicitly documents deviation from production best practices for the
+% sake of instructional clarity.
+%
+% Prevents misinterpretation of this lab configuration as hardened policy.
+% -----------------------------------------------------------------------------
 \subsection{8.4 BGP Policy Simplification}
 \label{subsec:bgp-policy-simplification}
 
@@ -3006,6 +3658,16 @@ Potential future enhancements include:
 
 Each enhancement would preserve the underlay/overlay separation validated by this lab while scaling the design toward larger enterprise deployments.
 
+% =============================================================================
+% SECTION 9: CONCLUSION AND NEXT STEPS
+%
+% Purpose:
+%   Summarizes validated outcomes, confirms objective alignment, and
+%   outlines potential evolution paths beyond the lab scope.
+%
+% Nature:
+%   This section is summative and forward-looking rather than normative.
+% =============================================================================
 \section{9. Conclusion and Next Steps}
 \label{sec:conclusion-next-steps}
 
@@ -3080,6 +3742,29 @@ If this architecture were to be evolved beyond a lab environment, the following 
 
 While intentionally minimal in scope, this lab demonstrates a coherent and defensible approach to building a secure, automated WAN in AWS using open-source networking tools. The resulting architecture serves both as a validation of design principles and as a foundation upon which more complex enterprise deployments could be built.
 
+
+% =============================================================================
+% APPENDIX A: DESIGN CONSTRAINTS AND LIMITATIONS
+%
+% Purpose:
+%   Documents protocol-level constraints, observed failure modes, and
+%   evaluated but rejected design approaches encountered during iterative
+%   validation of the AWS WireGuard BGP hub-and-spoke WAN.
+%
+% Architectural Role:
+%   Preserves empirical findings and non-obvious behavioral constraints
+%   that materially influenced the final architecture but are not part of
+%   the normative configuration model defined in Sections 5 and 6.
+%
+%   This appendix clarifies why certain alternatives (e.g., OSPF overlay,
+%   active/active dual hubs) were not adopted despite theoretical viability.
+%
+% Change Sensitivity:
+%   Modifications to assumptions documented here may require reevaluation
+%   of routing policy, cryptographic ownership boundaries, interface design,
+%   and failover mechanics. Review Section 5 (Detailed Design) and
+%   Section 6 (High Availability) before altering architectural constraints.
+% =============================================================================
 \appendix
 \section{Appendix: Design Constraints and Limitations}
 \label{sec:appendix-design-constraints}
@@ -3129,6 +3814,24 @@ In addition, BGP was selected as an intentional design choice to reflect product
 
 \textbf{Conclusion:} In this lab, BGP proved to be the most appropriate overlay control-plane protocol for a secure, routed, hub-and-spoke architecture built on a unicast-only WireGuard underlay.
 
+% -----------------------------------------------------------------------------
+% NOTE: ALLOWEDIPS AS A FORWARDING AUTHORITY
+%
+% WireGuard's AllowedIPs parameter functions simultaneously as:
+%   1. A cryptographic authorization boundary
+%   2. A peer selection mechanism
+%   3. An implicit forwarding constraint
+%
+% Control-plane routing state (e.g., BGP-installed routes) does not
+% override cryptographic ownership. If a destination prefix is not
+% covered by AllowedIPs, traffic will be rejected prior to encryption,
+% even when kernel routing appears correct.
+%
+% DESIGN IMPLICATION:
+%   Cryptographic prefix ownership must be validated before evaluating
+%   routing protocol correctness. Overlay routing cannot compensate for
+%   incomplete or overlapping AllowedIPs definitions.
+% -----------------------------------------------------------------------------
 \subsection{A.2 WireGuard \texttt{AllowedIPs} as a Cryptographic Routing Constraint}
 \label{subsec:a2-allowedips-constraint}
 
@@ -3175,6 +3878,25 @@ This behavior demonstrates that, in this lab, \texttt{AllowedIPs} functions simu
 
 \textbf{Conclusion:} In WireGuard-based routed overlays, cryptographic policy is authoritative. Overlay routing protocols cannot compensate for missing or overlapping \texttt{AllowedIPs} coverage.
 
+% -----------------------------------------------------------------------------
+% A.3 ACTIVE/ACTIVE HUB DESIGN CONSTRAINTS
+%
+% A true active/active design requires deterministic separation of:
+%   - Route installation
+%   - Prefix ownership
+%   - Peer selection logic
+%
+% In this lab environment, wg-quick automatic route injection and shared
+% routing tables produced prefix collisions when overlapping destination
+% space was introduced across parallel tunnels.
+%
+% Absent VRF isolation, policy-based routing, or fwmark-based table
+% separation, deterministic multipath behavior could not be achieved.
+%
+% DESIGN OUTCOME:
+%   Active/standby failover was selected to preserve deterministic
+%   prefix ownership and predictable operational behavior.
+% -----------------------------------------------------------------------------
 \subsection{A.3 Active/Active Hub Design Constraints}
 \label{subsec:a3-active-active-constraints}
 
