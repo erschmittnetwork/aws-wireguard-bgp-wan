@@ -1,51 +1,27 @@
-# --------------------------------------------------------------------
-# GitHub Actions Workflow
-# Purpose:
-#   Build and publish static documentation artifacts (HTML/PDF)
-#   to Amazon S3 and CloudFront on every push to main.
-#
-# Responsibilities:
-#   - Render Mermaid diagrams
-#   - Build Pandoc HTML/PDF outputs
-#   - Assume AWS role via OIDC
-#   - Deploy to S3
-#   - Invalidate CloudFront cache
-# --------------------------------------------------------------------
+name: Deploy lab artifacts to S3
 
-name: Deploy static resources to S3
-
-# ----------------------------------------------------------
-# Trigger workflow on commits to the main branch
-# ----------------------------------------------------------
 on:
   push:
     branches: [ "main" ]
 
-# ----------------------------------------------------------
-# Minimal permissions required for OIDC + repo checkout
-# ----------------------------------------------------------
 permissions:
-  id-token: write     # Required for AWS OIDC role assumption
-  contents: read     # Required for repository checkout
+  id-token: write
+  contents: read
+
+env:
+  LAB_SLUG: aws-wireguard-bgp-wan
+  LAB_TITLE: AWS WireGuard BGP WAN with Automated HA Hub Failover
+  TEX_SOURCE: docs/aws-wireguard-bgp-wan.tex
 
 jobs:
   deploy:
-    # Use GitHub-hosted Ubuntu runner
     runs-on: ubuntu-latest
 
     steps:
-      # --------------------------------------------------------------
-      # Checkout repository contents into runner workspace
-      # --------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --------------------------------------------------------------
-      # Install build toolchain dependencies
-      #   - Pandoc for document rendering
-      #   - LaTeX for PDF generation
-      # --------------------------------------------------------------
-      - name: Install build dependencies (Pandoc, LaTeX)
+      - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -53,43 +29,16 @@ jobs:
             texlive-latex-recommended \
             texlive-latex-extra \
             texlive-fonts-recommended \
-            lmodern \
+            lmodern
 
-      # --------------------------------------------------------------
-      # Build documentation artifacts into dist/
-      #
-      # Responsibilities:
-      #   - Prepare output directory
-      #   - Render Mermaid diagrams
-      #   - Copy static assets
-      #   - Generate HTML and PDF via Pandoc
-      # --------------------------------------------------------------
-      - name: Build site artifacts into dist/
+      - name: Build lab artifacts into dist/
         shell: bash
         run: |
-          # Fail fast:
-          #   -e : exit on error
-          #   -u : treat unset vars as error
-          #   -o pipefail : propagate pipe failures
           set -euo pipefail
 
-          # ----------------------------------------------------------
-          # Recreate output directory
-          # ----------------------------------------------------------
           rm -rf dist
           mkdir -p dist/docs/diagrams dist/docs/assets
 
-          # ----------------------------------------------------------
-          # Copy portfolio landing page if present
-          # ----------------------------------------------------------
-          if [ -f index.html ]; then
-            cp index.html dist/index.html
-          fi
-
-          # ----------------------------------------------------------
-          # Render Mermaid diagrams into PNG images
-          # Uses dockerized mermaid-cli for deterministic builds
-          # ----------------------------------------------------------
           if compgen -G "diagrams/*.mmd" > /dev/null; then
             for f in diagrams/*.mmd; do
               base="$(basename "$f" .mmd)"
@@ -106,68 +55,58 @@ jobs:
             echo "No Mermaid diagrams found."
           fi
 
-          # ----------------------------------------------------------
-          # Copy static assets (doc.css + header.html)
-          # ----------------------------------------------------------
           if [ -d assets ]; then
             cp -R assets/* dist/docs/assets/ || true
           fi
 
-          # ----------------------------------------------------------
-          # Build HTML documentation from LaTeX source via Pandoc
-          # ----------------------------------------------------------
-          pandoc docs/aws-wireguard-bgp-wan.tex \
+          pandoc "$TEX_SOURCE" \
             -s \
             --toc \
             --toc-depth=3 \
             --css=assets/doc.css \
             --resource-path=.:dist:dist/docs \
             --include-after-body=assets/header.html \
-            -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
-            -o dist/docs/aws-wireguard-bgp-wan.html
+            -M title="$LAB_TITLE" \
+            -o "dist/docs/${LAB_SLUG}.html"
 
-          # ----------------------------------------------------------
-          # Build PDF documentation via pdflatex backend
-          # ----------------------------------------------------------
-          pandoc docs/aws-wireguard-bgp-wan.tex \
+          pandoc "$TEX_SOURCE" \
             -s \
             --toc \
             --toc-depth=3 \
             --resource-path=.:dist:dist/docs \
-            -M title="AWS WireGuard BGP WAN with Automated HA Hub Failover" \
+            -M title="$LAB_TITLE" \
             --pdf-engine=pdflatex \
-            -o dist/docs/aws-wireguard-bgp-wan.pdf
+            -o "dist/docs/${LAB_SLUG}.pdf"
 
-      # --------------------------------------------------------------
-      # Configure AWS credentials using GitHub OIDC
-      #
-      # Security Model:
-      #   - No static credentials
-      #   - GitHub issues OIDC token
-      #   - AWS STS assumes IAM role
-      # --------------------------------------------------------------
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::948544151710:role/GitHubActionsDeployRole
           aws-region: us-east-1
 
-      # --------------------------------------------------------------
-      # Sync generated artifacts to S3
-      #
-      # Responsibilities:
-      #   - Mirror dist/ to bucket
-      #   - Remove stale objects (--delete)
-      #   - Force correct content-type for CSS assets
-      # --------------------------------------------------------------
-      - name: Sync site to S3
+      - name: Upload lab artifacts
+        shell: bash
         run: |
-          aws s3 sync dist/ s3://network-blog-assets --delete
-          aws s3 cp dist/docs/assets/ s3://network-blog-assets/assets/ --recursive --content-type text/css
+          set -euo pipefail
 
-      # --------------------------------------------------------------
-      # Invalidate CloudFront cache to force edge refresh
-      # --------------------------------------------------------------
+          aws s3 cp "dist/docs/${LAB_SLUG}.html" \
+            "s3://network-blog-assets/docs/${LAB_SLUG}.html" \
+            --content-type text/html
+
+          aws s3 cp "dist/docs/${LAB_SLUG}.pdf" \
+            "s3://network-blog-assets/docs/${LAB_SLUG}.pdf" \
+            --content-type application/pdf
+
+          if [ -d dist/docs/diagrams ]; then
+            aws s3 sync dist/docs/diagrams/ s3://network-blog-assets/docs/diagrams/
+          fi
+
+          if [ -d dist/docs/assets ]; then
+            aws s3 sync dist/docs/assets/ s3://network-blog-assets/assets/
+          fi
+
       - name: Invalidate CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id E2K6CM81Z0U5LV --paths "/*"
+          aws cloudfront create-invalidation \
+            --distribution-id E2K6CM81Z0U5LV \
+            --paths "/docs/${LAB_SLUG}.html" "/docs/${LAB_SLUG}.pdf" "/docs/diagrams/*" "/assets/*"
