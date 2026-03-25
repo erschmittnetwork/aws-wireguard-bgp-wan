@@ -79,8 +79,7 @@ The objective is to model realistic SME operational constraints while preserving
 │   └── logical-architecture.mmd
 ├── docs
 │   └── aws-wireguard-bgp-wan.tex
-├── README.md
-└── index.html
+└── README.md
 ```
 
 ### 4.1 Components
@@ -99,9 +98,6 @@ Contains the primary LaTeX documentation source from which artifacts are generat
 
 **README.md**
 Provides an overview of the lab scope and CI/CD pipeline for document delivery.
-
-**index.html**
-Defines the portfolio landing page for the published documentation.
 
 ---
 
