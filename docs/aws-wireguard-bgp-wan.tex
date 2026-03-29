@@ -84,7 +84,11 @@ Date of Issue & February 13, 2026 \\
 \hline
 Document Status & Production-Ready (Educational Lab / Proof-of-Concept) \\
 \hline
+Document Type & Engineering Lab Implementation and Validation Report \\
+\hline
 Primary Technologies & WireGuard, BGP (FRR), AWS EC2, EventBridge, Lambda, CloudWatch \\
+\hline
+VM Platform & AWS EC2 and VMware Workstation Pro: Ubuntu Server 24.04 LTS \\
 \hline
 Architecture Pattern & Hub-and-Spoke WAN \\
 \hline
@@ -99,7 +103,7 @@ Cloud Provider & Amazon Web Services (AWS), Region: us-east-1 \\
 \hline
 \textbf{Version} & \textbf{Date} & \textbf{Description} & \textbf{Author} \\
 \hline
-1.0 & 2025-12-01 & Initial documention draft & Eric Schmitt \\
+1.0 & 2025-12-01 & Initial document draft & Eric Schmitt \\
 \hline
 1.1 & 2025-12-14 & Validation alignment and terminology refinement & Eric Schmitt \\
 \hline
@@ -3470,7 +3474,7 @@ The operational model aligns with enterprise expectations for a small-scale WAN 
 \section{8. Design Trade-offs, Lessons Learned, and Future Enhancements}
 \label{sec:design-tradeoffs}
 
-This section documents key architectural trade-offs, behavioral constraints, and lessons learned during the design and implementation of the AWS WireGuard hub-and-spoke WAN. It consolidates observations from both the finalized production-oriented design and the exploratory constraints described in Appendix~A, with a focus on decisions that materially affected correctness, operability, and realism.
+This section documents key architectural trade-offs, behavioral constraints, and lessons learned during the design and implementation of the AWS WireGuard hub-and-spoke WAN. It consolidates observations from both the finalized production-oriented design and the exploratory constraints described in Appendix~\ref{sec:appendix-design-constraints}, with a focus on decisions that materially affected correctness, operability, and realism.
 
 % -----------------------------------------------------------------------------
 % 8.1 UNDERLAY VS OVERLAY SEPARATION
@@ -3496,7 +3500,7 @@ WireGuard tunnels serve as the underlay transport layer. Their responsibilities 
 \item Static peer-based forwarding via \texttt{AllowedIPs}
 \end{itemize}
 
-WireGuard does not perform routing decisions and does not dynamically resolve reachability. As demonstrated during the active/active hub experiment documented in Appendix~A, cryptographic constraints imposed by \texttt{AllowedIPs} override all routing protocol logic. When a destination prefix is not covered by a valid WireGuard peer association, traffic fails with errors such as:
+WireGuard does not perform routing decisions and does not dynamically resolve reachability. As demonstrated during the active/active hub experiment documented in Appendix~\ref{sec:appendix-design-constraints}, cryptographic constraints imposed by \texttt{AllowedIPs} override all routing protocol logic. When a destination prefix is not covered by a valid WireGuard peer association, traffic fails with errors such as:
 
 \begin{verbatim}
 ping: sendmsg: Required key not available
@@ -3514,7 +3518,7 @@ BGP operates strictly as the overlay control plane. Its role is to:
 \item Abstract physical and transport-level topology
 \end{itemize}
 
-The overlay is entirely dependent on underlay correctness. Valid BGP routes do not guarantee reachability unless the underlying WireGuard peer configuration permits encrypted transport. This dependency was explicitly observed during attempts to form parallel adjacencies over overlapping WireGuard tunnels, as detailed in Appendix~A.
+The overlay is entirely dependent on underlay correctness. Valid BGP routes do not guarantee reachability unless the underlying WireGuard peer configuration permits encrypted transport. This dependency was explicitly observed during attempts to form parallel adjacencies over overlapping WireGuard tunnels, as detailed in Appendix~\ref{sec:appendix-design-constraints}.
 
 \subsection{8.2 Active/Standby vs. Active/Active Hub Design}
 \label{subsec:active-standby-vs-active-active}
@@ -3540,7 +3544,7 @@ This approach empirically encountered several non-obvious constraints:
 \item Cryptographic enforcement prevented asymmetric return paths
 \end{itemize}
 
-These issues are documented in detail in Appendix~A and are intrinsic to WireGuard’s security model rather than misconfiguration errors.
+These issues are documented in detail in Appendix~\ref{sec:appendix-design-constraints} and are intrinsic to WireGuard’s security model rather than misconfiguration errors.
 
 % -----------------------------------------------------------------------------
 % 8.2.2 ACTIVE/STANDBY MODEL SELECTION
