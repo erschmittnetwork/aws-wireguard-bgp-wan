@@ -73,6 +73,7 @@ The objective is to model realistic SME operational constraints while preserving
 ├── .github/workflows
 │   └── deploy.yml
 ├── assets
+│   ├── appendix-numbering-filter.lua
 │   ├── doc.css
 │   └── header.html
 ├── diagrams
@@ -88,7 +89,7 @@ The objective is to model realistic SME operational constraints while preserving
 Defines the GitHub Actions workflow used to build and deploy documentation artifacts.
 
 **assets/**
-Contains CSS and a reusable HTML fragment injected into generated output.
+Contains CSS, a Lua script for appendix numbering, and a reusable HTML fragment injected into generated output.
 
 **diagrams/**
 Contains the Mermaid source file defining the logical and architectural diagram.
