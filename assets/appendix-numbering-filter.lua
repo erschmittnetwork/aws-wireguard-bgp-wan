@@ -7,29 +7,15 @@
 -- appendix semantics (e.g., Appendix A / A.1 / A.1.2) and Pandoc's
 -- default HTML rendering, which may otherwise flatten appendices into
 -- ordinary numeric sections (e.g., 13 / 13.1 / 13.1.2).
---
--- The filter performs two primary functions:
---   1. It rewrites appendix headers in the document body so that
---      top-level appendix sections display as "Appendix A." or
---      "Appendix B.", while lower-level headings display as A.1,
---      A.1.1, etc.
---   2. It rewrites internal link text for references targeting appendix
---      labels so that body references display the normalized appendix
---      numbering instead of the default numeric form.
---
--- This implementation assumes appendix labels follow a stable pattern
--- such as "sec:appendix-a-..." and "sec:appendix-b-...". It also
--- tolerates source headings that already contain manual numbering and
--- strips those prefixes before inserting normalized numbering.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
 -- GLOBAL APPENDIX REFERENCE MAP
 -- ---------------------------------------------------------------------
--- Stores the normalized display value for each appendix header ID after
--- header traversal. This map is later used during link rewriting so
--- that internal references targeting appendix anchors can be replaced
--- with the correct appendix-style numbering.
+-- Stores the normalized appendix numbering associated with each header
+-- ID after header traversal. This map is later used during link
+-- rewriting so that internal references targeting appendix anchors can
+-- be replaced with the correct appendix-style numbering.
 -- ---------------------------------------------------------------------
 local appendix_map = {}
 
@@ -37,9 +23,9 @@ local appendix_map = {}
 -- HELPER: STRINGIFY PANDOC INLINE CONTENT
 -- ---------------------------------------------------------------------
 -- Converts a Pandoc inline or block content structure into plain text
--- using pandoc.utils.stringify(). This is used throughout the filter
--- whenever header content or link text must be interpreted as a normal
--- string for pattern matching or reconstruction.
+-- using pandoc.utils.stringify(). This is used whenever header content
+-- or link text must be evaluated as normal text for matching or
+-- reconstruction.
 -- ---------------------------------------------------------------------
 local function stringify(x)
   return pandoc.utils.stringify(x)
@@ -49,7 +35,7 @@ end
 -- HELPER: TRIM LEADING / TRAILING WHITESPACE
 -- ---------------------------------------------------------------------
 -- Normalizes text by removing leading and trailing whitespace. This is
--- applied before and after pattern-based prefix stripping so that
+-- used before and after pattern-based prefix stripping so that
 -- reconstructed header titles remain clean and deterministic.
 -- ---------------------------------------------------------------------
 local function trim(s)
@@ -57,72 +43,76 @@ local function trim(s)
 end
 
 -- ---------------------------------------------------------------------
--- HELPER: DERIVE APPENDIX LETTER FROM LABEL ID
+-- HELPER: DETECT APPENDIX LABEL IDS
 -- ---------------------------------------------------------------------
--- Extracts the appendix designator (e.g., "A" or "B") from a label ID
--- that follows the established pattern "sec:appendix-a-..." or
--- "sec:appendix-b-...". If the ID does not match the expected appendix
--- label model, nil is returned and the calling logic treats the header
--- or link as non-appendix content.
+-- Returns true when a header ID begins with "sec:appendix". This is the
+-- primary label-based signal used to detect the single appendix in the
+-- AWS lab document.
 -- ---------------------------------------------------------------------
-local function appendix_letter_from_id(id)
+local function is_appendix_id(id)
   if not id then
-    return nil
+    return false
   end
-  local a = id:match("^sec:appendix%-([a-z])%-")
-  if a then
-    return string.upper(a)
-  end
-  return nil
+  return id:match("^sec:appendix") ~= nil
 end
 
 -- ---------------------------------------------------------------------
--- HELPER: STRIP MANUAL APPENDIX PREFIXES FROM TITLES
+-- HELPER: DETECT APPENDIX TITLES
 -- ---------------------------------------------------------------------
--- Removes manual numbering that may already be embedded in appendix
--- titles in the LaTeX source before the filter inserts normalized
--- numbering. This supports source patterns such as:
---   - "Appendix A. Title"
+-- Returns true when the visible header text begins with "Appendix".
+-- This provides a title-based fallback for detecting the appendix when
+-- a label alone is not sufficient.
+-- ---------------------------------------------------------------------
+local function is_appendix_title(text)
+  text = trim(text)
+  return text:match("^[Aa]ppendix\b") ~= nil
+end
+
+-- ---------------------------------------------------------------------
+-- HELPER: STRIP TOP-LEVEL APPENDIX PREFIX FROM TITLES
+-- ---------------------------------------------------------------------
+-- Removes manual appendix prefixes that may already be embedded in the
+-- top-level appendix heading before the filter inserts normalized
+-- numbering. This supports forms such as:
+--   - "Appendix: Design Constraints and Limitations"
+--   - "Appendix A. Design Constraints and Limitations"
+--   - "Appendix Design Constraints and Limitations"
+-- ---------------------------------------------------------------------
+local function strip_top_level_appendix_prefix(text)
+  text = trim(text)
+  text = text:gsub("^%s*[Aa]ppendix%s*:%s*", "", 1)
+  text = text:gsub("^%s*[Aa]ppendix%s+[A-Za-z]%.?%s*", "", 1)
+  text = text:gsub("^%s*[Aa]ppendix%.?%s*", "", 1)
+  return trim(text)
+end
+
+-- ---------------------------------------------------------------------
+-- HELPER: STRIP MANUAL LOWER-LEVEL APPENDIX PREFIXES
+-- ---------------------------------------------------------------------
+-- Removes manual appendix numbering that may already be embedded in
+-- lower-level appendix headings before the filter inserts normalized
+-- numbering. This supports forms such as:
 --   - "A.1 Title"
 --   - "A.1.2 Title"
 --   - "A.1.2.3 Title"
---
--- The function intentionally handles both top-level appendix labels and
--- lower-level numbered subsection forms so that duplicate numbering is
--- not introduced in the rendered HTML headers or TOC entries.
 -- ---------------------------------------------------------------------
-local function strip_manual_prefix(text, letter)
+local function strip_manual_prefix(text)
   text = trim(text)
-
-  -- Top-level appendix titles:
-  -- "Appendix A. Title"
-  -- "Appendix A Title"
-  -- "appendix A. Title"
-  local appendix_pat = "^%s*[Aa]ppendix%s+" .. letter .. "%.?"
-  if text:match(appendix_pat) then
-    text = text:gsub(appendix_pat .. "%s*", "", 1)
-  end
-
-  -- Numbered appendix subsection titles:
-  -- "A.1 Title"
-  -- "A.1.2 Title"
-  -- "A.1.2.3 Title"
-  text = text:gsub("^" .. letter .. "%.%d+%.%d+%.%d+%.?%s+", "", 1)
-  text = text:gsub("^" .. letter .. "%.%d+%.%d+%.?%s+", "", 1)
-  text = text:gsub("^" .. letter .. "%.%d+%.?%s+", "", 1)
-
+  text = text:gsub("^A%.%d+%.%d+%.%d+%.?%s+", "", 1)
+  text = text:gsub("^A%.%d+%.%d+%.?%s+", "", 1)
+  text = text:gsub("^A%.%d+%.?%s+", "", 1)
   return trim(text)
 end
 
 -- ---------------------------------------------------------------------
 -- HELPER: BUILD NORMALIZED HEADER CONTENT
 -- ---------------------------------------------------------------------
--- Constructs the replacement inline content for appendix headers. For
--- top-level appendix sections, the visible prefix is rendered as
--- "Appendix A." or "Appendix B." within a header-section-number span so
--- that the heading and TOC remain visually aligned with Pandoc's normal
--- numbered-header structure. For lower-level headings, only the compact
--- numeric form (e.g., "A.2.4") is emitted before the title text.
+-- Constructs replacement inline content for appendix headers. For the
+-- top-level appendix section, the visible prefix is rendered as
+-- "Appendix A." within a header-section-number span so that the heading
+-- and TOC remain aligned with Pandoc's numbered-header structure. For
+-- lower-level appendix headings, only the compact form (e.g., "A.1.2")
+-- is emitted before the title text.
 -- ---------------------------------------------------------------------
 local function make_header_content(number, title_text, is_appendix_top)
   if is_appendix_top then
@@ -149,117 +139,112 @@ end
 -- ---------------------------------------------------------------------
 -- PASS 1: COLLECT APPENDIX IDS AND REWRITE HEADERS
 -- ---------------------------------------------------------------------
--- Traverses document headers in order, detects appendix scope based on
--- label IDs, maintains per-appendix counters, records normalized values
--- in appendix_map, and rewrites the visible header text accordingly.
+-- Traverses document headers in order, detects the single appendix,
+-- maintains appendix counters, records normalized values in
+-- appendix_map, and rewrites visible header text accordingly.
 --
 -- Behavior:
---   - Level 1 appendix headers become "Appendix A." / "Appendix B."
---   - Level 2 headers become "A.1", "A.2", etc.
---   - Level 3 headers become "A.1.1", "A.2.4", etc.
---   - Level 4 headers are also supported for completeness.
+--   - The top-level appendix header becomes "Appendix A."
+--   - Level-2 appendix headers become "A.1", "A.2", etc.
+--   - Level-3 appendix headers become "A.1.1", "A.2.1", etc.
+--   - Level-4 appendix headers become "A.1.1.1", etc.
 --
--- This pass is authoritative for numbering state. The later link pass
--- depends entirely on the values stored here.
+-- Once a top-level appendix has been detected, subsequent lower-level
+-- headers are treated as belonging to Appendix A until another level-1
+-- header ends appendix scope.
 -- ---------------------------------------------------------------------
 local function collect_and_rewrite_headers(doc)
-  local current_appendix = nil
-  local counters = {}
+  local in_appendix = false
+  local counters = { subsection = 0, subsubsection = 0, level4 = 0 }
 
   for _, block in ipairs(doc.blocks) do
     if block.t == "Header" then
-      local id = block.identifier
-      local letter = appendix_letter_from_id(id)
+      local id = block.identifier or ""
+      local raw = trim(stringify(block.content))
 
       -- ---------------------------------------------------------------
       -- LEVEL 1: TOP-LEVEL APPENDIX SECTION
       -- ---------------------------------------------------------------
-      -- Establishes appendix scope, resets counters for that appendix,
-      -- stores the top-level appendix letter in the map, strips any
-      -- manual "Appendix A." prefix from the source title, and rewrites
-      -- the header so the visible form becomes "Appendix A. <Title>".
+      -- Detects the single appendix by label or by visible title text,
+      -- resets appendix counters, stores the normalized top-level value
+      -- "A" in the map, strips any manual appendix prefix from the
+      -- heading text, and rewrites the visible header as
+      -- "Appendix A. <Title>".
       -- ---------------------------------------------------------------
-      if block.level == 1 and letter then
-        current_appendix = letter
-        counters[letter] = { subsection = 0, subsubsection = 0, level4 = 0 }
-        appendix_map[id] = letter
+      if block.level == 1 then
+        if is_appendix_id(id) or is_appendix_title(raw) then
+          in_appendix = true
+          counters = { subsection = 0, subsubsection = 0, level4 = 0 }
 
-        local raw = trim(stringify(block.content))
-        local title = raw:gsub("^%s*[Aa]ppendix%s+" .. letter .. "%.?" .. "%s*", "", 1)
-        title = trim(title)
+          if id ~= "" then
+            appendix_map[id] = "A"
+          end
 
-        block.content = make_header_content(letter, title, true)
+          local title = strip_top_level_appendix_prefix(raw)
+          block.content = make_header_content("A", title, true)
+        else
+          in_appendix = false
+        end
 
       -- ---------------------------------------------------------------
       -- LEVEL 2: APPENDIX SUBSECTION
       -- ---------------------------------------------------------------
-      -- Increments the subsection counter within the active appendix,
-      -- resets deeper counters, records the normalized value (e.g.,
-      -- "A.2"), strips any manual numbering from the title, and rewrites
-      -- the header with the normalized appendix subsection prefix.
+      -- Increments the Appendix A subsection counter, resets deeper
+      -- counters, stores the normalized value (e.g., "A.1") in the map,
+      -- strips any manual appendix numbering from the source title, and
+      -- rewrites the visible heading content.
       -- ---------------------------------------------------------------
-      elseif current_appendix
-        and block.level == 2
-        and id ~= ""
-        and appendix_letter_from_id(id) == current_appendix
-      then
-        local c = counters[current_appendix]
-        c.subsection = c.subsection + 1
-        c.subsubsection = 0
-        c.level4 = 0
+      elseif in_appendix and block.level == 2 then
+        counters.subsection = counters.subsection + 1
+        counters.subsubsection = 0
+        counters.level4 = 0
 
-        local num = string.format("%s.%d", current_appendix, c.subsection)
-        appendix_map[id] = num
+        local num = string.format("A.%d", counters.subsection)
+        if id ~= "" then
+          appendix_map[id] = num
+        end
 
-        local title = strip_manual_prefix(stringify(block.content), current_appendix)
+        local title = strip_manual_prefix(raw)
         block.content = make_header_content(num, title, false)
 
       -- ---------------------------------------------------------------
       -- LEVEL 3: APPENDIX SUBSUBSECTION
       -- ---------------------------------------------------------------
-      -- Increments the subsubsection counter within the active appendix
-      -- subsection, resets level-4 counters, records the normalized
-      -- value (e.g., "A.2.4"), strips manual numbering from the source
-      -- title, and rewrites the visible header content.
+      -- Increments the Appendix A subsubsection counter, resets the
+      -- level-4 counter, stores the normalized value (e.g., "A.1.2")
+      -- in the map, strips any manual appendix numbering from the
+      -- source title, and rewrites the visible heading content.
       -- ---------------------------------------------------------------
-      elseif current_appendix
-        and block.level == 3
-        and id ~= ""
-        and appendix_letter_from_id(id) == current_appendix
-      then
-        local c = counters[current_appendix]
-        c.subsubsection = c.subsubsection + 1
-        c.level4 = 0
+      elseif in_appendix and block.level == 3 then
+        counters.subsubsection = counters.subsubsection + 1
+        counters.level4 = 0
 
-        local num = string.format("%s.%d.%d", current_appendix, c.subsection, c.subsubsection)
-        appendix_map[id] = num
+        local num = string.format("A.%d.%d", counters.subsection, counters.subsubsection)
+        if id ~= "" then
+          appendix_map[id] = num
+        end
 
-        local title = strip_manual_prefix(stringify(block.content), current_appendix)
+        local title = strip_manual_prefix(raw)
         block.content = make_header_content(num, title, false)
 
       -- ---------------------------------------------------------------
       -- LEVEL 4: OPTIONAL DEEPER APPENDIX HEADING SUPPORT
       -- ---------------------------------------------------------------
-      -- Supports an additional heading depth if present. This is not
-      -- strictly required for the current document structure but is
-      -- included for completeness and consistency in case a deeper
-      -- appendix hierarchy is introduced later.
+      -- Supports one additional heading depth for completeness. It
+      -- increments the level-4 counter, stores the normalized value
+      -- (e.g., "A.1.2.1") in the map, strips manual appendix numbering
+      -- from the source title, and rewrites the visible heading
+      -- content.
       -- ---------------------------------------------------------------
-      elseif current_appendix
-        and block.level == 4
-        and id ~= ""
-        and appendix_letter_from_id(id) == current_appendix
-      then
-        local c = counters[current_appendix]
-        c.level4 = c.level4 + 1
+      elseif in_appendix and block.level == 4 then
+        counters.level4 = counters.level4 + 1
 
-        local num = string.format(
-          "%s.%d.%d.%d",
-          current_appendix, c.subsection, c.subsubsection, c.level4
-        )
-        appendix_map[id] = num
+        local num = string.format("A.%d.%d.%d", counters.subsection, counters.subsubsection, counters.level4)
+        if id ~= "" then
+          appendix_map[id] = num
+        end
 
-        local title = strip_manual_prefix(stringify(block.content), current_appendix)
+        local title = strip_manual_prefix(raw)
         block.content = make_header_content(num, title, false)
       end
     end
@@ -276,14 +261,13 @@ end
 -- changing only the visible link text.
 --
 -- Supported visible input forms include:
---   - "13"
---   - "13.1"
---   - "13.1.2"
---   - "Section 13.1.2"
---   - "Appendix 13"
+--   - "10"
+--   - "10.1"
+--   - "10.1.2"
+--   - "Section 10.1.2"
+--   - "Appendix 10"
 --
--- These are rewritten to the normalized appendix forms recorded during
--- the header pass, such as:
+-- These are rewritten to normalized appendix forms such as:
 --   - "A"
 --   - "A.1"
 --   - "A.1.2"
@@ -307,7 +291,7 @@ local function rewrite_link_text(link)
   -- ---------------------------------------------------------------
   -- CASE 1: BARE NUMERIC REFERENCE
   -- ---------------------------------------------------------------
-  -- Rewrites plain numeric link text such as "13", "13.1", or "13.1.2"
+  -- Rewrites plain numeric link text such as "10", "10.1", or "10.1.2"
   -- to the normalized appendix form (e.g., "A", "A.1", "A.1.2").
   -- ---------------------------------------------------------------
   if text:match("^%d+$")
@@ -322,8 +306,8 @@ local function rewrite_link_text(link)
   -- ---------------------------------------------------------------
   -- CASE 2: "SECTION N..." STYLE REFERENCE
   -- ---------------------------------------------------------------
-  -- Rewrites visible link text of the form "Section 13.1.2" to
-  -- "Section A.1.2" while preserving the internal anchor target.
+  -- Rewrites visible link text of the form "Section 10.2.1" to
+  -- "Section A.2.1" while preserving the internal anchor target.
   -- ---------------------------------------------------------------
   if text:match("^Section%s+%d+[%d%.]*$") then
     link.content = {
@@ -337,14 +321,11 @@ local function rewrite_link_text(link)
   -- ---------------------------------------------------------------
   -- CASE 3: "APPENDIX N..." STYLE REFERENCE
   -- ---------------------------------------------------------------
-  -- Rewrites visible link text of the form "Appendix 13" to
-  -- "Appendix A" when the target is a top-level appendix section.
-  -- If the stored value is deeper than a single appendix letter, the
-  -- compact appendix-style number is used directly.
+  -- Rewrites visible link text of the form "Appendix 10" to
+  -- "Appendix A" for the single appendix in the AWS lab.
   -- ---------------------------------------------------------------
   if text:match("^Appendix%s+%d+[%d%.]*$") then
-    local visible = appendix_num:match("^[A-Z]$") and ("Appendix " .. appendix_num) or appendix_num
-    link.content = { pandoc.Str(visible) }
+    link.content = { pandoc.Str("Appendix A") }
     return link
   end
 
@@ -358,7 +339,7 @@ end
 -- pass rewrites appendix headers and records normalized numbering in the
 -- appendix_map. The second pass walks the document and rewrites any
 -- qualifying internal links that target those appendix IDs. This order
--- is required so that all appendix numbering is known before link text
+-- is required so that appendix numbering is known before link text
 -- replacement occurs.
 -- ---------------------------------------------------------------------
 function Pandoc(doc)
